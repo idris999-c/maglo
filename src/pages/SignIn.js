@@ -31,10 +31,11 @@ export default function SignIn() {
   };
 
   return (
-    <div className="min-h-screen grid grid-cols-1 md:[grid-template-columns:1fr_auto]" data-page-title="maglo - sign in">
+    <div className="min-h-[100dvh] grid grid-cols-1 lg:[grid-template-columns:1fr_auto]" data-page-title="maglo - sign in">
+
       <div className="flex items-center justify-center px-8 py-10">
         <form onSubmit={onSubmit} className="w-full max-w-md" noValidate>
-          <div className="flex items-center gap-2 mb-24 md:mb-48">
+          <div className="flex items-center gap-2 mb-12 md:mb-24">
             <img src="/icons/auth/Logo.png" alt="Maglo" className="h-8" />
           </div>
           <h1 className="text-3xl font-semibold text-gray-900">Sign In</h1>
@@ -97,8 +98,8 @@ export default function SignIn() {
           </p>
         </form>
       </div>
-      <div className="hidden md:flex items-center justify-end bg-gray-50 md:h-screen">
-        <img src="/images/auth.jpg" alt="Auth görseli" className="h-screen w-auto object-contain object-right select-none" />
+      <div className="hidden lg:flex items-center justify-end bg-gray-50 lg:min-h-[100dvh]">
+        <img src="/images/auth.jpg" alt="Auth görseli" className="h-full max-h-[100dvh] w-auto object-contain object-right select-none" />
       </div>
     </div>
   );

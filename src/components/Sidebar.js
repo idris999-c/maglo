@@ -13,8 +13,8 @@ export default function Sidebar({ onLogout }) {
   return (
     <aside>
       <div className="md:fixed md:top-0 md:left-0 bg-[#FAFAFA]  p-2 md:p-3 pt-0 flex flex-col h-screen md:w-[280px]">
-        <div className="px-3 md:px-4 mb-1 flex items-center">
-          <img src="/icons/auth/Logo.png" alt="Maglo" className="h-32 w-32 object-contain" />
+        <div className="px-3 md:px-4 mt-2 md:mt-4 mb-5 md:mb-7 flex items-center">
+          <img src="/icons/auth/Logo.png" alt="Maglo" className="h-8" />
         </div>
 
         <nav className="flex flex-col gap-2 px-3 md:px-4">
@@ -42,7 +42,7 @@ export default function Sidebar({ onLogout }) {
           </a>
           <button
             onClick={onLogout}
-            className="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-left text-base text-gray-500 hover:bg-gray-100"
+            className="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-left text-base text-gray-500 hover:bg-red-50 hover:text-red-600 transition-colors"
           >
             <img src="/icons/sidebar/Logout.svg" alt="Logout" className="h-6 w-6" />
             <span>Logout</span>
