@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import toast from 'react-hot-toast';
 
 const initialState = { email: '', password: '' };
 
@@ -26,16 +27,23 @@ export default function SignIn() {
   const onSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
-    await login({ email: form.email, password: form.password });
-    navigate('/');
+    const p = login({ email: form.email, password: form.password })
+      .then(() => {
+        toast.success('Giriş başarılı');
+        navigate('/');
+      })
+      .catch((err) => {
+        toast.error(err?.message || 'Giriş başarısız');
+      });
+    await p;
   };
 
   return (
     <div className="min-h-[100dvh] grid grid-cols-1 lg:[grid-template-columns:1fr_auto]" data-page-title="maglo - sign in">
 
-      <div className="flex items-center justify-center px-8 py-10">
+      <div className="flex items-center justify-center px-8 py-6 lg:py-8">
         <form onSubmit={onSubmit} className="w-full max-w-md" noValidate>
-          <div className="flex items-center gap-2 mb-12 md:mb-24">
+          <div className="flex items-center gap-2 mb-8 lg:mb-12 xl:mb-16">
             <img src="/icons/auth/Logo.png" alt="Maglo" className="h-8" />
           </div>
           <h1 className="text-3xl font-semibold text-gray-900">Sign In</h1>

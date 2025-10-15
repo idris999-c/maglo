@@ -8,7 +8,9 @@ import WorkingCapitalChart from '../components/WorkingCapitalChart';
 import RecentTransactions from '../components/RecentTransactions';
 import WalletPanel from '../components/WalletPanel';
 import ScheduledTransfers from '../components/ScheduledTransfers';
-// currencyFormat kaldırıldı: burada kullanılmıyor
+import { getFinancialSummary, getWorkingCapital, getWalletCards, getRecentTransactions, getScheduledTransfers, getUserProfile } from '../utils/financialApi';
+import toast from 'react-hot-toast';
+// Cache import'u kaldırıldı
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
@@ -16,57 +18,152 @@ export default function Dashboard() {
 
   const [currencyCode, setCurrencyCode] = useState('USD');
   const [locale, setLocale] = useState('en-US');
-  const [period, setPeriod] = useState('daily'); // default to Today
+  const [period, setPeriod] = useState('30d'); // default to Last 6 months
 
-  const chartSource = useMemo(
-    () => {
-      const seven = [
-        { day: 'Apr 14', income: 3600, expense: 5200 },
-        { day: 'Apr 15', income: 7400, expense: 3300 },
-        { day: 'Apr 16', income: 4200, expense: 6800 },
-        { day: 'Apr 17', income: 8100, expense: 4700 },
-        { day: 'Apr 18', income: 2300, expense: 5200 },
-        { day: 'Apr 19', income: 6600, expense: 2100 },
-        { day: 'Apr 20', income: 3500, expense: 5900 },
-      ];
-      const thirty = Array.from({ length: 30 }).map((_, i) => ({ day: `Apr ${i + 1}`, income: 4000 + Math.round(Math.random()*3000), expense: 2000 + Math.round(Math.random()*2000) }));
-      // Daily (hourly) data: sinusoidal pattern + slight noise to ensure visible ups/downs
-      const daily = Array.from({ length: 24 }).map((_, i) => {
-        const rad = (i / 24) * Math.PI * 2;
-        const incomeBase = 800 + 500 * Math.sin(rad - Math.PI / 2) + 200 * Math.sin(rad * 2);
-        const expenseBase = 600 + 350 * Math.cos(rad) - 150 * Math.sin(rad * 2);
-        const income = Math.max(60, Math.round(incomeBase + (Math.random() - 0.5) * 150));
-        const expense = Math.max(40, Math.round(expenseBase + (Math.random() - 0.5) * 120));
-        return { day: `${String(i).padStart(2,'0')}:00`, income, expense };
-      });
-      const weekly = [];
-      for (let i = 0; i < thirty.length; i += 7) {
-        const slice = thirty.slice(i, i + 7);
-        const income = slice.reduce((a, b) => a + b.income, 0);
-        const expense = slice.reduce((a, b) => a + b.expense, 0);
-        weekly.push({ day: `Week ${Math.floor(i / 7) + 1}`, income, expense });
-      }
-      return { '7d': seven, '30d': thirty, weekly, daily };
-    },
-    []
-  );
+  // Static data for Today and Last 7 days
+  const staticChartData = {
+    daily: [
+      { day: '00:00', income: 1200, expense: 800 },
+      { day: '04:00', income: 1500, expense: 900 },
+      { day: '08:00', income: 2200, expense: 1100 },
+      { day: '12:00', income: 1800, expense: 1300 },
+      { day: '16:00', income: 2500, expense: 1000 },
+      { day: '20:00', income: 1900, expense: 1200 }
+    ],
+    '7d': [
+      { day: 'Mon', income: 3600, expense: 6250 },
+      { day: 'Tue', income: 5600, expense: 2400 },
+      { day: 'Wed', income: 2500, expense: 5900 },
+      { day: 'Thu', income: 5750, expense: 2300 },
+      { day: 'Fri', income: 1600, expense: 5600 },
+      { day: 'Sat', income: 5400, expense: 2200 },
+      { day: 'Sun', income: 3250, expense: 4900 }
+    ]
+  };
 
-  const [transactions] = useState([
-    { id: 1, name: 'Iphone 13 Pro MAX', type: 'Mobile', amount: 420.84, date: '2022-04-14' },
-    { id: 2, name: 'Netflix Subscription', type: 'Entertainment', amount: 100.0, date: '2022-04-05' },
-    { id: 3, name: 'Figma Subscription', type: 'Software', amount: 244.2, date: '2022-04-02' },
-  ]);
-
-  const [totals] = useState({ balance: 5240.21, spending: 250.8, saved: 550.25 });
+  const [transactions, setTransactions] = useState([]);
+  const [totals, setTotals] = useState({ balance: 0, spending: 0, saved: 0 });
   const [loading, setLoading] = useState(true);
+  const [scheduledTransfers, setScheduledTransfers] = useState([]);
+  const [workingCapitalData, setWorkingCapitalData] = useState(null);
+  const [walletCards, setWalletCards] = useState([]);
+  const [userProfile, setUserProfile] = useState(null);
 
   useEffect(() => {
-    // Simüle veri yükleme (skeleton göstermek için)
-    const t = setTimeout(() => setLoading(false), 500);
-    return () => clearTimeout(t);
-  }, []);
+    console.log('🚀 API çağrıları başlatılıyor... (Period:', period, ')');
+    
+    (async () => {
+      try {
+        setLoading(true);
+        
+        console.log('📡 API çağrıları başlatılıyor...');
+        const [summary, wc, trx, sch, wallet, profile] = await Promise.all([
+          getFinancialSummary(),
+          getWorkingCapital(),
+          getRecentTransactions(20),
+          getScheduledTransfers(),
+          getWalletCards(),
+          getUserProfile(),
+        ]);
+        
+        console.log('📡 API çağrıları tamamlandı:', {
+          summary: !!summary,
+          wc: !!wc,
+          wcData: wc?.data?.length || 0,
+          wcFullData: wc,
+          trx: !!trx,
+          sch: !!sch,
+          wallet: !!wallet,
+          walletCards: wallet?.length || 0,
+          profile: !!profile
+        });
+        
+        console.log('✅ API verileri başarıyla alındı');
+        console.log('📈 Working Capital API verisi:', wc);
+        
+        const balance = summary?.totalBalance?.amount || 0;
+        const spending = summary?.totalExpense?.amount || 0;
+        const saved = summary?.totalSavings?.amount || 0;
+        const totalsData = { balance, spending, saved };
+        
+        console.log('💰 Totals data:', totalsData);
+        setTotals(totalsData);
 
-  const chartData = chartSource[period];
+        const trxList = trx?.transactions || [];
+        const transactionsData = trxList.map(t => ({
+          id: t.id,
+          name: t.name,
+          type: t.type,
+          amount: t.amount,
+          date: t.date,
+          business: t.business,
+          image: t.image,
+        }));
+        
+        console.log('💳 Transactions data:', transactionsData);
+        setTransactions(transactionsData);
+
+        const scheduledData = sch?.transfers?.slice(0,5) || [];
+        console.log('📅 Scheduled transfers data:', scheduledData);
+        setScheduledTransfers(scheduledData);
+
+        const walletData = wallet || [];
+        console.log('💳 Wallet cards data:', walletData);
+        setWalletCards(walletData);
+
+        const profileData = profile?.data || null;
+        console.log('👤 User profile data:', profileData);
+        setUserProfile(profileData);
+
+        // Working Capital API verisini işle - sadece "Last 6 months" için
+        if (wc?.data && period === '30d') {
+          console.log('📈 Working Capital API verisi:', wc);
+          
+          // API'den gelen 6 aylık veriyi düzgün işle
+          const chartData = wc.data.map(monthData => {
+            // Sayısal değerleri kontrol et ve düzelt
+            const income = typeof monthData.income === 'number' ? monthData.income : 0;
+            const expense = typeof monthData.expense === 'number' ? monthData.expense : 0;
+            const net = typeof monthData.net === 'number' ? monthData.net : (income - expense);
+            
+            console.log(`📊 ${monthData.month}: income=${income}, expense=${expense}, net=${net}`);
+            
+            return {
+              day: monthData.month, // API'den gelen ay ismi (Mayıs, Haziran, vb.)
+              income: income,
+              expense: expense,
+              net: net
+            };
+          });
+          
+          console.log('📈 Working Capital chart data (6 months):', chartData);
+          setWorkingCapitalData(chartData);
+        } else {
+          // Diğer period'lar için null veri
+          setWorkingCapitalData(null);
+        }
+
+        console.log('🎉 Tüm veriler state\'e kaydedildi');
+        
+      } catch (err) {
+        console.error('❌ API hatası:', err);
+        toast.error(err?.message || 'Veriler yüklenemedi');
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [period]); // Period değiştiğinde de çalışsın
+
+  // Period'a göre veri seç
+  const chartData = workingCapitalData || staticChartData[period] || null;
+  
+  // Debug için
+  console.log('🔍 Chart data debug:', {
+    period,
+    hasWorkingCapitalData: !!workingCapitalData,
+    workingCapitalDataLength: workingCapitalData?.length || 0,
+    finalChartData: chartData?.length || 0
+  });
 
   return (
     <div className="min-h-screen bg-white" data-page-title="maglo - dashboard">
@@ -76,7 +173,7 @@ export default function Dashboard() {
         </div>
 
         <div className="space-y-4 md:space-y-6 px-6 md:px-8 pb-12 md:pb-16">
-          <Topbar user={user} onOpenSidebar={() => setShowMobileSidebar(true)} />
+          <Topbar user={userProfile || user} onOpenSidebar={() => setShowMobileSidebar(true)} />
 
           {showMobileSidebar && (
             <div className="fixed inset-0 z-40 md:hidden">
@@ -122,8 +219,8 @@ export default function Dashboard() {
             </main>
 
             <section className="space-y-6">
-              <WalletPanel />
-              <ScheduledTransfers amounts={[435,132,826,435,228]} loading={loading} currencyCode={currencyCode} locale={locale} />
+              <WalletPanel cards={walletCards} loading={loading} />
+              <ScheduledTransfers transfers={scheduledTransfers} loading={loading} currencyCode={currencyCode} locale={locale} />
             </section>
           </div>
         </div>
@@ -131,5 +228,3 @@ export default function Dashboard() {
     </div>
   );
 }
-
-

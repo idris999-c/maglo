@@ -52,7 +52,8 @@ export default function Dropdown({
         ref={buttonRef}
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className={`flex items-center gap-2 text-sm text-gray-700 bg-[$#F8F8F8] px-3 py-1 rounded-md border border-transparent hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-900/10 ${buttonClassName}`}
+        className={`flex items-center gap-2 text-sm text-gray-700 px-3 py-1 rounded-md border border-transparent hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-900/10 ${buttonClassName}`}
+        style={{ backgroundColor: '#F8F8F8' }}
         aria-haspopup="listbox"
         aria-expanded={open}
       >

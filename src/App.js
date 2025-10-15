@@ -4,6 +4,8 @@ import { AuthProvider, useAuth } from './auth/AuthContext';
 import SignIn from './pages/SignIn';
 import SignUp from './pages/SignUp';
 import Dashboard from './pages/Dashboard';
+import { Toaster } from 'react-hot-toast';
+import ErrorBoundary from './utils/errorBoundary';
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated } = useAuth();
@@ -42,8 +44,11 @@ export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <AppRouter />
+        <ErrorBoundary>
+          <AppRouter />
+        </ErrorBoundary>
       </BrowserRouter>
+      <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
     </AuthProvider>
   );
 }

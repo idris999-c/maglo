@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import toast from 'react-hot-toast';
 
 const initialState = { name: '', email: '', password: '' };
 
 export default function SignUp() {
   const [form, setForm] = useState(initialState);
   const [errors, setErrors] = useState({});
-  const { login, loading } = useAuth();
+  const { register, loading } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -17,9 +18,17 @@ export default function SignUp() {
 
   const validate = () => {
     const next = {};
-    if (!form.name || form.name.trim().split(' ').length < 1) next.name = 'Ad Soyad gerekli';
+    const nameParts = form.name.trim().split(/\s+/).filter(Boolean);
+    if (!form.name || nameParts.length < 2) next.name = 'Ad Soyad en az iki kelime olmalı';
     if (!form.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) next.email = 'Geçerli bir e‑posta girin';
-    if (!form.password || form.password.length < 6) next.password = 'Şifre en az 6 karakter';
+    const hasMinLen = (form.password || '').length >= 8;
+    const hasUpper = /[A-Z]/.test(form.password || '');
+    const hasLower = /[a-z]/.test(form.password || '');
+    const hasNumber = /[0-9]/.test(form.password || '');
+    const hasSpecial = /[^A-Za-z0-9]/.test(form.password || '');
+    if (!hasMinLen || !hasUpper || !hasLower || !hasNumber || !hasSpecial) {
+      next.password = 'Şifre 8+ karakter, büyük/küçük harf, rakam ve özel karakter içermeli';
+    }
     setErrors(next);
     return Object.keys(next).length === 0;
   };
@@ -27,16 +36,23 @@ export default function SignUp() {
   const onSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
-    await login({ name: form.name, email: form.email, password: form.password });
-    navigate('/');
+    const p = register({ fullName: form.name, email: form.email, password: form.password })
+      .then(() => {
+        toast.success('Kayıt başarılı');
+        navigate('/');
+      })
+      .catch((err) => {
+        toast.error(err?.message || 'Kayıt başarısız');
+      });
+    await p;
   };
 
   return (
     <div className="min-h-[100dvh] grid grid-cols-1 lg:[grid-template-columns:1fr_auto]" data-page-title="maglo - sign up">
 
-      <div className="flex items-center justify-center px-8 py-10">
+      <div className="flex items-center justify-center px-8 py-6 lg:py-8">
         <form onSubmit={onSubmit} className="w-full max-w-md" noValidate>
-          <div className="flex items-center gap-2 mb-12 md:mb-24">
+          <div className="flex items-center gap-2 mb-8 lg:mb-12 xl:mb-16">
             <img src="/icons/auth/Logo.png" alt="Maglo" className="h-8" />
           </div>
           <h1 className="text-3xl font-semibold text-gray-900">Create new account</h1>

@@ -3,6 +3,7 @@ import React from 'react';
 export default function WalletCard({
   variant = 'dark',
   bankLabel = 'Universal Bank',
+  cardName = '',
   masked = false,
   number = '5495 7381 3759 2321',
   expiry,
@@ -23,9 +24,10 @@ export default function WalletCard({
         <div className="flex items-center gap-2 text-sm font-medium">
           <span className={`text-base font-semibold ${isDark ? '' : 'text-white'}`}>Maglo.</span>
           <span className={isDark ? 'opacity-60' : 'text-white/70'}>|</span>
-          <span className={isDark ? 'opacity-30' : 'text-white/90'}>{bankLabel}</span>
+          <span className={isDark ? 'opacity-30' : 'text-white/90'}>{bankLabel.replace('Maglo | ', '')}</span>
         </div>
       </div>
+      
 
       <div className="flex items-center justify-between mt-6">
         <img src="/icons/wallet/Group.svg" alt="Chip" className={`${isDark ? 'h-8' : 'h-7'}`} />

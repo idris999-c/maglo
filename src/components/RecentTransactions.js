@@ -1,16 +1,9 @@
 import React from 'react';
 import { currencyFormat, dateStr } from '../utils/format';
 
-function TransactionRow({ name, type, amount, date, currencyCode, locale }) {
-  const lower = (name || '').toLowerCase();
-  const business =
-    lower.includes('netflix') ? 'Netflix' :
-    lower.includes('figma') ? 'Figma, Inc' :
-    lower.includes('iphone') || lower.includes('apple') ? 'Apple, Inc' : '';
-  const iconSrc =
-    lower.includes('netflix') ? '/icons/recent/Group 41-1.svg' :
-    lower.includes('figma') ? '/icons/recent/Group 41-2.svg' :
-    '/icons/recent/Group 41.svg';
+function TransactionRow({ name, type, amount, date, currencyCode, locale, business, image }) {
+  // API'den gelen image URL'ini kullan, yoksa varsayılan icon
+  const iconSrc = image || '/icons/recent/Group 41.svg';
 
   return (
     <div className="py-4 grid grid-cols-5 items-center text-sm">
@@ -40,7 +33,10 @@ export default function RecentTransactions({ transactions, loading, currencyCode
       {loading ? (
         <div className="space-y-2">
           {[...Array(3)].map((_,i)=> (
-            <div key={i} className="h-10 rounded bg-gray-200 animate-pulse" />
+            <div key={i} className="h-10 rounded relative overflow-hidden">
+              <div className="absolute inset-0 bg-gray-200 rounded" />
+              <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/50 to-transparent" />
+            </div>
           ))}
         </div>
       ) : (
@@ -61,6 +57,8 @@ export default function RecentTransactions({ transactions, loading, currencyCode
                 date={t.date}
                 currencyCode={currencyCode}
                 locale={locale}
+                business={t.business}
+                image={t.image}
               />
             ))}
           </div>

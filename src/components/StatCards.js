@@ -20,7 +20,10 @@ export default function StatCards({ totals, loading, currencyCode, locale }) {
         <div className="min-w-0">
           <p className={`${isDark ? 'text-gray-200' : 'text-gray-500'} text-[14px]`}>{label}</p>
           {loading ? (
-            <div className={`${isDark ? 'bg-white/20' : 'bg-gray-200'} h-7 mt-2 rounded animate-pulse`} />
+            <div className="mt-2 h-7 rounded relative overflow-hidden">
+              <div className={`${isDark ? 'bg-white/20' : 'bg-gray-200'} absolute inset-0 rounded`}></div>
+              <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/50 to-transparent" style={{ WebkitMaskImage: 'linear-gradient(black, black)' }} />
+            </div>
           ) : (
             <p className={`text-[28px] font-semibold mt-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
               {currencyFormat(value, currencyCode, locale)}

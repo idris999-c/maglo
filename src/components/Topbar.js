@@ -16,7 +16,7 @@ export default function Topbar({ user, onOpenSidebar }) {
         <img src="/icons/topbar/notification-bing.5 1.svg" alt="Notifications" className="h-6 opacity-70" />
         <div className="flex items-center gap-2 sm:gap-3 bg-[#FAFAFA] rounded-full px-2.5 sm:px-3 py-1.5">
           <img src="/icons/topbar/Ellipse 1.svg" alt="Avatar" className="h-8 w-8 rounded-full" />
-          <span className="text-md font-medium text-gray-900 pr-12">Mahfuzul Nabil</span>
+          <span className="text-md font-medium text-gray-900 pr-12">{user?.fullName || user?.name || 'Kullanıcı'}</span>
           <img src="/icons/topbar/Dropdown.svg" alt="Dropdown" className="h-5 w-5" />
         </div>
       </div>

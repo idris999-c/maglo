@@ -4,7 +4,7 @@ import { currencyFormat } from '../utils/format';
 import Dropdown from './Dropdown';
 
 export default function WorkingCapitalChart({ data, loading, currencyCode, locale, period, onChangePeriod }) {
-  const periodLabel = period === '30d' ? 'Last 30 days' : period === 'daily' ? 'Today' : 'Last 7 days';
+  const periodLabel = period === '30d' ? 'Last 6 months' : period === 'daily' ? 'Today' : 'Last 7 days';
   const xTick = period === '30d'
     ? { fill: '#475569', fontSize: 10, letterSpacing: -0.3 }
     : period === 'daily'
@@ -27,32 +27,34 @@ export default function WorkingCapitalChart({ data, loading, currencyCode, local
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <div className=" font-semibold text-lg text-gray-900">Working Capital</div>
-          <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 border hidden sm:inline-block" aria-label="current period">
-            {periodLabel}
-          </span>
         </div>
-        <div className="hidden sm:flex items-center gap-6 text-sm text-gray-600">
-          <span className="flex items-center gap-2"><span className="inline-block h-2.5 w-2.5 rounded-full" style={{ backgroundColor: '#29A073' }} />Income</span>
-          <span className="flex items-center gap-2"><span className="inline-block h-2.5 w-2.5 rounded-full" style={{ backgroundColor: '#C8EE44' }} />Expenses</span>
-        </div>
-        <Dropdown
+        <div className="flex items-center gap-24">
+          <div className="hidden sm:flex items-center gap-6 text-sm text-gray-600">
+            <span className="flex items-center gap-2"><span className="inline-block h-2.5 w-2.5 rounded-full" style={{ backgroundColor: '#29A073' }} />Income</span>
+            <span className="flex items-center gap-2"><span className="inline-block h-2.5 w-2.5 rounded-full" style={{ backgroundColor: '#C8EE44' }} />Expenses</span>
+          </div>
+          <Dropdown
           value={period}
           onChange={(v)=> onChangePeriod && onChangePeriod(v)}
           options={[
             { value: 'daily', label: 'Today' },
             { value: '7d', label: 'Last 7 days' },
-            { value: '30d', label: 'Last 30 days' },
+            { value: '30d', label: 'Last 6 months' },
           ]}
           align="right"
-          labelForValue={(v)=> (v==='30d' ? 'Last 30 days' : v==='daily' ? 'Today' : 'Last 7 days')}
-        />
+          labelForValue={(v)=> (v==='30d' ? 'Last 6 months' : v==='daily' ? 'Today' : 'Last 7 days')}
+          />
+        </div>
       </div>
       {loading ? (
-        <div className="h-64 rounded bg-gray-200 animate-pulse" />
+        <div className="h-64 rounded relative overflow-hidden">
+          <div className="absolute inset-0 bg-gray-200 rounded" />
+          <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/50 to-transparent" />
+        </div>
       ) : (
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data} margin={{ top: 10, left: 0, right: 0, bottom: 0 }}>
+            <LineChart data={data || []} margin={{ top: 10, left: 0, right: 0, bottom: 0 }}>
               <XAxis
                 dataKey="day"
                 tickLine={false}
@@ -68,10 +70,10 @@ export default function WorkingCapitalChart({ data, loading, currencyCode, local
               <YAxis
                 tickLine={false}
                 axisLine={false}
-                domain={period === 'daily' ? [0, dailyUpper] : [0, 10000]}
-                ticks={period === 'daily' ? dailyTicks : [0, 3000, 5000, 7000, 10000]}
+                domain={period === 'daily' ? [0, dailyUpper] : (period === '7d' ? [0, 10000] : [0, 100000])}
+                ticks={period === 'daily' ? dailyTicks : (period === '30d' ? [0, 20000, 40000, 60000, 80000, 100000] : [0, 2000, 4000, 6000, 8000, 10000])}
                 tick={yTick}
-                tickFormatter={(v)=> period === 'daily' ? currencyFormat(v, currencyCode, locale) : `${Math.round(v/1000)}K`}
+                tickFormatter={(v)=> period === 'daily' ? `${Math.round(v/1000)}K` : (period === '30d' ? `${Math.round(v/1000)}K` : `${Math.round(v/1000)}K`)}
               />
               <Tooltip formatter={(v) => currencyFormat(v, currencyCode, locale)} cursor={{ fill: 'rgba(229,231,235,0.35)' }} />
               <Line type="monotone" dataKey="income" stroke="#29A073" strokeWidth={3} dot={false} strokeLinecap="round" strokeLinejoin="round" />
