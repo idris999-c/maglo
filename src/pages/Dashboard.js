@@ -8,7 +8,7 @@ import WorkingCapitalChart from '../components/WorkingCapitalChart';
 import RecentTransactions from '../components/RecentTransactions';
 import WalletPanel from '../components/WalletPanel';
 import ScheduledTransfers from '../components/ScheduledTransfers';
-import { currencyFormat } from '../utils/format';
+// currencyFormat kaldırıldı: burada kullanılmıyor
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
@@ -51,13 +51,13 @@ export default function Dashboard() {
     []
   );
 
-  const [transactions, setTransactions] = useState([
+  const [transactions] = useState([
     { id: 1, name: 'Iphone 13 Pro MAX', type: 'Mobile', amount: 420.84, date: '2022-04-14' },
     { id: 2, name: 'Netflix Subscription', type: 'Entertainment', amount: 100.0, date: '2022-04-05' },
     { id: 3, name: 'Figma Subscription', type: 'Software', amount: 244.2, date: '2022-04-02' },
   ]);
 
-  const [totals, setTotals] = useState({ balance: 5240.21, spending: 250.8, saved: 550.25 });
+  const [totals] = useState({ balance: 5240.21, spending: 250.8, saved: 550.25 });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
