@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import toast from 'react-hot-toast';
+import CustomToast from '../components/CustomToast';
 
 const initialState = { email: '', password: '' };
 
 export default function SignIn() {
   const [form, setForm] = useState(initialState);
   const [errors, setErrors] = useState({});
-  const { login, loading } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -18,22 +19,83 @@ export default function SignIn() {
 
   const validate = () => {
     const next = {};
-    if (!form.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) next.email = 'Geçerli bir e‑posta girin';
-    if (!form.password || form.password.length < 6) next.password = 'Şifre en az 6 karakter';
+    if (!form.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      next.email = 'Please enter a valid email';
+      toast.custom((t) => (
+        <CustomToast 
+          toast={t} 
+          message="Please enter a valid email" 
+          type="error" 
+        />
+      ), {
+        position: 'top-center',
+        duration: 6000,
+      });
+    }
+    if (!form.password || form.password.length < 6) {
+      next.password = 'Password must be at least 6 characters';
+      toast.custom((t) => (
+        <CustomToast 
+          toast={t} 
+          message="Password must be at least 6 characters" 
+          type="error" 
+        />
+      ), {
+        position: 'top-center',
+        duration: 6000,
+      });
+    }
     setErrors(next);
     return Object.keys(next).length === 0;
   };
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    if (!validate()) return;
+    e.stopPropagation();
+    
+    console.log('Form submitted, validating...');
+    
+    // Test toast first
+    toast.custom((t) => (
+      <CustomToast 
+        toast={t} 
+        message="Test toast - if you see this, toast system is working!" 
+        type="error" 
+      />
+    ), {
+      position: 'top-center',
+      duration: 6000,
+    });
+    
+    if (!validate()) {
+      console.log('Validation failed, showing error toasts');
+      return;
+    }
     const p = login({ email: form.email, password: form.password })
       .then(() => {
-        toast.success('Giriş başarılı');
+        toast.custom((t) => (
+          <CustomToast 
+            toast={t} 
+            message="Login successful" 
+            type="success" 
+          />
+        ), {
+          position: 'top-center',
+          duration: 6000,
+        });
         navigate('/');
       })
       .catch((err) => {
-        toast.error(err?.message || 'Giriş başarısız');
+        toast.custom((t) => (
+          <CustomToast 
+            toast={t}
+            message={err?.message || 'Login failed'} 
+            type="error" 
+          />
+        ), {
+          position: 'top-center',
+          duration: 4000,
+        });
       });
     await p;
   };
@@ -55,7 +117,7 @@ export default function SignIn() {
             type="email"
             value={form.email}
             onChange={handleChange}
-            disabled={loading}
+disabled={false}
             id="signin-email"
             aria-invalid={Boolean(errors.email)}
             aria-describedby={errors.email ? 'signin-email-error' : undefined}
@@ -70,7 +132,7 @@ export default function SignIn() {
             type="password"
             value={form.password}
             onChange={handleChange}
-            disabled={loading}
+disabled={false}
             id="signin-password"
             aria-invalid={Boolean(errors.password)}
             aria-describedby={errors.password ? 'signin-password-error' : undefined}
@@ -80,17 +142,11 @@ export default function SignIn() {
           {errors.password && <p id="signin-password-error" className="text-sm text-red-600 mt-1">{errors.password}</p>}
 
           <button
-            type="submit"
-            disabled={loading}
-            className="mt-6 w-full inline-flex items-center justify-center gap-2 rounded-lg bg-[#C8EE44] hover:brightness-95 text-gray-900 font-medium py-2.5 transition disabled:opacity-60 disabled:cursor-not-allowed"
+            type="button"
+            onClick={onSubmit}
+            className="mt-6 w-full inline-flex items-center justify-center gap-2 rounded-lg bg-[#C8EE44] hover:brightness-95 text-gray-900 font-medium py-2.5 transition"
           >
-            {loading && (
-              <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
-              </svg>
-            )}
-            <span>{loading ? 'Giriş yapılıyor…' : 'Sign In'}</span>
+            <span>Sign In</span>
           </button>
 
           <button type="button" disabled className="mt-4 w-full rounded-lg border border-gray-300 py-2.5 text-gray-700 flex items-center justify-center gap-2">

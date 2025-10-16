@@ -1,12 +1,72 @@
 import React from 'react';
 import { currencyFormat, dateStr } from '../utils/format';
+import toast from 'react-hot-toast';
+import CustomToast from './CustomToast';
 
 export default function ScheduledTransfers({ transfers, loading, currencyCode, locale }) {
+  // Toast mesajları için fonksiyonlar
+  const handleTransferAction = (action) => {
+    switch (action) {
+      case 'viewAll':
+        toast.custom((t) => (
+          <CustomToast 
+            toast={t} 
+            message="Loading all scheduled transfers..." 
+            type="info" 
+          />
+        ));
+        break;
+      case 'loadError':
+        toast.custom((t) => (
+          <CustomToast 
+            toast={t} 
+            message="Failed to load scheduled transfers" 
+            type="error" 
+          />
+        ));
+        break;
+      case 'transferCancel':
+        toast.custom((t) => (
+          <CustomToast 
+            toast={t} 
+            message="Transfer cancelled successfully" 
+            type="success" 
+          />
+        ));
+        break;
+      case 'transferEdit':
+        toast.custom((t) => (
+          <CustomToast 
+            toast={t} 
+            message="Transfer updated successfully" 
+            type="success" 
+          />
+        ));
+        break;
+      case 'transferClick':
+        toast.custom((t) => (
+          <CustomToast 
+            toast={t} 
+            message="Transfer details loaded" 
+            type="info" 
+          />
+        ));
+        break;
+      default:
+        break;
+    }
+  };
+
   return (
     <div className="bg-white pt-2 sm:pt-3 md:pt-5 pb-2 sm:pb-3 md:pb-5 px-2 sm:px-3 md:px-5 w-full sm:w-[200px] md:w-[350px] lg:w-[420px] h-[180px] sm:h-[220px] md:h-[350px]">
       <div className="flex items-center justify-between mb-[8px] sm:mb-[12px] md:mb-[25px]">
         <h3 className="font-medium text-gray-900 text-[10px] sm:text-[12px] md:text-[18px]">Scheduled Transfers</h3>
-        <button className="text-[8px] sm:text-[9px] md:text-[14px] font-bold text-[#29A073]">View All <span aria-hidden className="inline-block w-[8px] h-[8px] sm:w-[10px] sm:h-[10px] md:w-[18px] md:h-[18px]">›</span></button>
+        <button 
+          onClick={() => handleTransferAction('viewAll')}
+          className="text-[8px] sm:text-[9px] md:text-[14px] font-bold text-[#29A073]"
+        >
+          View All <span aria-hidden className="inline-block w-[8px] h-[8px] sm:w-[10px] sm:h-[10px] md:w-[18px] md:h-[18px]">›</span>
+        </button>
       </div>
       {loading ? (
         <div className="space-y-[4px] sm:space-y-[6px] md:space-y-[12px]">
@@ -20,7 +80,11 @@ export default function ScheduledTransfers({ transfers, loading, currencyCode, l
       ) : (
         <div className="space-y-[4px] sm:space-y-[6px] md:space-y-[12px]">
           {(transfers || []).map((transfer, i) => (
-            <div key={transfer.id} className={`flex items-center justify-between py-0.5 sm:py-1 md:py-2 text-[8px] sm:text-[9px] md:text-sm ${i===0 ? 'border-none' : 'border-t border-gray-200/70'}` }>
+            <div 
+              key={transfer.id} 
+              onClick={() => handleTransferAction('transferClick')}
+              className={`flex items-center justify-between py-0.5 sm:py-1 md:py-2 text-[8px] sm:text-[9px] md:text-sm cursor-pointer hover:bg-gray-50 rounded ${i===0 ? 'border-none' : 'border-t border-gray-200/70'}` }
+            >
             <div className="flex items-center gap-0.5 sm:gap-1 md:gap-2">
               <div className="h-[16px] w-[16px] sm:h-[20px] sm:w-[20px] md:h-[33px] md:w-[33px] rounded-sm sm:rounded-md bg-[#E6F4FF] grid place-items-center">
                 <img 

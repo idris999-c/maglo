@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
@@ -8,12 +8,14 @@ import WorkingCapitalChart from '../components/WorkingCapitalChart';
 import RecentTransactions from '../components/RecentTransactions';
 import WalletPanel from '../components/WalletPanel';
 import ScheduledTransfers from '../components/ScheduledTransfers';
+import LottieAnimation from '../components/LottieAnimation';
 import { getFinancialSummary, getWorkingCapital, getWalletCards, getRecentTransactions, getScheduledTransfers, getUserProfile } from '../utils/financialApi';
 import toast from 'react-hot-toast';
+import CustomToast from '../components/CustomToast';
 // Cache import'u kaldırıldı
 
 export default function Dashboard() {
-  const { user, logout } = useAuth();
+  const { user, logout, showWelcomeAnimation, hideWelcomeAnimation } = useAuth();
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
 
   const [currencyCode, setCurrencyCode] = useState('USD');
@@ -147,7 +149,13 @@ export default function Dashboard() {
         
       } catch (err) {
         console.error('❌ API hatası:', err);
-        toast.error(err?.message || 'Veriler yüklenemedi');
+        toast.custom((t) => (
+          <CustomToast 
+            toast={t} 
+            message={err?.message || 'Failed to load data'} 
+            type="error" 
+          />
+        ));
       } finally {
         setLoading(false);
       }
@@ -165,15 +173,29 @@ export default function Dashboard() {
     finalChartData: chartData?.length || 0
   });
 
+
   return (
     <div className="min-h-screen bg-white" data-page-title="maglo - dashboard">
+      {/* Welcome Animation Overlay */}
+      {showWelcomeAnimation && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/95 backdrop-blur-sm">
+          <LottieAnimation 
+            onComplete={hideWelcomeAnimation}
+            className="w-48 h-48"
+          />
+        </div>
+      )}
+
       <div className="grid gap-[8px] sm:gap-[12px] md:gap-[40px] grid-cols-1 md:grid-cols-[140px_1fr] lg:grid-cols-[250px_1fr]">
         <div className="hidden md:block">
           <Sidebar onLogout={logout} />
         </div>
 
         <div className="space-y-[8px] sm:space-y-[12px] md:space-y-[40px] px-1 sm:px-2 md:px-4 pb-2 sm:pb-3 md:pb-6">
-          <Topbar user={userProfile || user} onOpenSidebar={() => setShowMobileSidebar(true)} />
+          <Topbar 
+            user={userProfile || user} 
+            onOpenSidebar={() => setShowMobileSidebar(true)} 
+          />
 
           {showMobileSidebar && (
             <div className="fixed inset-0 z-40 md:hidden">

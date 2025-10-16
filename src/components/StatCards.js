@@ -1,12 +1,50 @@
 import React from 'react';
 import { currencyFormat } from '../utils/format';
+import toast from 'react-hot-toast';
+import CustomToast from './CustomToast';
 
 export default function StatCards({ totals, loading, currencyCode, locale }) {
+  // Toast mesajları için fonksiyonlar
+  const handleStatAction = (action) => {
+    switch (action) {
+      case 'loadError':
+        toast.custom((t) => (
+          <CustomToast 
+            toast={t} 
+            message="Failed to load financial data" 
+            type="error" 
+          />
+        ));
+        break;
+      case 'dataUpdate':
+        toast.custom((t) => (
+          <CustomToast 
+            toast={t} 
+            message="Financial data updated" 
+            type="success" 
+          />
+        ));
+        break;
+      case 'cardClick':
+        toast.custom((t) => (
+          <CustomToast 
+            toast={t} 
+            message="Financial details loaded" 
+            type="info" 
+          />
+        ));
+        break;
+      default:
+        break;
+    }
+  };
+
   const Card = ({ label, value, icon, variant }) => {
     const isDark = variant === 'dark';
     return (
       <div
-        className={`w-[120px] sm:w-[140px] md:w-[222px] h-[60px] sm:h-[70px] md:h-[105px] rounded-lg sm:rounded-xl md:rounded-2xl p-1.5 sm:p-2 md:p-4 flex items-center gap-1 sm:gap-2 md:gap-3 ${
+        onClick={() => handleStatAction('cardClick')}
+        className={`w-[120px] sm:w-[140px] md:w-[222px] h-[60px] sm:h-[70px] md:h-[105px] rounded-lg sm:rounded-xl md:rounded-2xl p-1.5 sm:p-2 md:p-4 flex items-center gap-1 sm:gap-2 md:gap-3 cursor-pointer hover:scale-105 transition-transform ${
           isDark ? 'bg-[#363A3F] text-white' : 'bg-[#F8F8F8] text-gray-900'
         }`}
       >

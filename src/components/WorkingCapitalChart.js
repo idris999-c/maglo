@@ -2,9 +2,45 @@ import React from 'react';
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { currencyFormat } from '../utils/format';
 import Dropdown from './Dropdown';
+import toast from 'react-hot-toast';
+import CustomToast from './CustomToast';
 
 export default function WorkingCapitalChart({ data, loading, currencyCode, locale, period, onChangePeriod }) {
-  const periodLabel = period === '30d' ? 'Last 6 months' : period === 'daily' ? 'Today' : 'Last 7 days';
+  // Toast mesajları için fonksiyonlar
+  const handleChartAction = (action) => {
+    switch (action) {
+      case 'loadError':
+        toast.custom((t) => (
+          <CustomToast 
+            toast={t} 
+            message="Failed to load chart data" 
+            type="error" 
+          />
+        ));
+        break;
+      case 'dataUpdate':
+        toast.custom((t) => (
+          <CustomToast 
+            toast={t} 
+            message="Chart data updated" 
+            type="success" 
+          />
+        ));
+        break;
+      case 'periodChange':
+        toast.custom((t) => (
+          <CustomToast 
+            toast={t} 
+            message="Chart period changed" 
+            type="info" 
+          />
+        ));
+        break;
+      default:
+        break;
+    }
+  };
+
   const xTick = period === '30d'
     ? { fill: '#475569', fontSize: 10, letterSpacing: -0.3 }
     : period === 'daily'
@@ -15,13 +51,6 @@ export default function WorkingCapitalChart({ data, loading, currencyCode, local
   const xInterval = 0; // show all labels
   // Keep the 'Apr' prefix for 30-day view per design
   const formatDayTick = (value) => value;
-
-  // Compute dynamic Y-axis for daily to make ups/downs visible
-  const dailyMax = Array.isArray(data)
-    ? data.reduce((max, d) => Math.max(max, d.income || 0, d.expense || 0), 0)
-    : 0;
-  const dailyUpper = Math.max(100, Math.ceil(dailyMax * 1.2));
-  const dailyTicks = [0, 0.25, 0.5, 0.75, 1].map((r) => Math.round(dailyUpper * r));
   return (
     <div className="bg-white rounded-lg sm:rounded-xl md:rounded-xl pl-[8px] sm:pl-[12px] md:pl-[25px] pt-[8px] sm:pt-[12px] md:pt-[20px] pb-[15px] sm:pb-[20px] md:pb-[50px] pr-[8px] sm:pr-[12px] md:pr-[20px] border w-full max-w-[716px] h-[120px] sm:h-[150px] md:h-[291px]">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-0">
@@ -35,7 +64,10 @@ export default function WorkingCapitalChart({ data, loading, currencyCode, local
           </div>
           <Dropdown
           value={period}
-          onChange={(v)=> onChangePeriod && onChangePeriod(v)}
+          onChange={(v)=> {
+            onChangePeriod && onChangePeriod(v);
+            handleChartAction('periodChange');
+          }}
           options={[
             { value: 'daily', label: 'Today' },
             { value: '7d', label: 'Last 7 days' },

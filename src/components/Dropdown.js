@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import toast from 'react-hot-toast';
+import CustomToast from './CustomToast';
 
 /**
  * Reusable dropdown component with headless behavior.
@@ -19,6 +21,41 @@ export default function Dropdown({
   const [open, setOpen] = useState(false);
   const rootRef = useRef(null);
   const buttonRef = useRef(null);
+
+  // Toast mesajları için fonksiyonlar
+  const handleDropdownAction = (action, newValue, label) => {
+    switch (action) {
+      case 'currencyChange':
+        toast.custom((t) => (
+          <CustomToast 
+            toast={t} 
+            message={`Currency changed to ${newValue}`} 
+            type="success" 
+          />
+        ));
+        break;
+      case 'languageChange':
+        toast.custom((t) => (
+          <CustomToast 
+            toast={t} 
+            message={`Language changed to ${label}`} 
+            type="success" 
+          />
+        ));
+        break;
+      case 'periodChange':
+        toast.custom((t) => (
+          <CustomToast 
+            toast={t} 
+            message={`Chart period changed to ${label}`} 
+            type="info" 
+          />
+        ));
+        break;
+      default:
+        break;
+    }
+  };
 
   const labelMap = useMemo(() => {
     const map = new Map();
@@ -78,6 +115,16 @@ export default function Dropdown({
                   onChange && onChange(opt.value);
                   setOpen(false);
                   if (buttonRef.current) buttonRef.current.focus();
+                  
+                  // Toast mesajı göster
+                  const label = opt.label ?? String(opt.value);
+                  if (opt.value === 'USD' || opt.value === 'EUR' || opt.value === 'TRY') {
+                    handleDropdownAction('currencyChange', opt.value, label);
+                  } else if (opt.value === 'en-US' || opt.value === 'en-GB' || opt.value === 'tr-TR') {
+                    handleDropdownAction('languageChange', opt.value, label);
+                  } else if (opt.value === 'daily' || opt.value === '7d' || opt.value === '30d') {
+                    handleDropdownAction('periodChange', opt.value, label);
+                  }
                 }}
               >
                 {label}

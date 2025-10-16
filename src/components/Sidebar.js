@@ -1,7 +1,45 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import CustomToast from './CustomToast';
 
 export default function Sidebar({ onLogout }) {
+  // Toast mesajları için fonksiyonlar
+  const handleSidebarAction = (action, label) => {
+    switch (action) {
+      case 'navigate':
+        toast.custom((t) => (
+          <CustomToast 
+            toast={t} 
+            message={`Navigating to ${label}...`} 
+            type="info" 
+          />
+        ));
+        break;
+      case 'logout':
+        toast.custom((t) => (
+          <CustomToast 
+            toast={t} 
+            message="Logged out successfully" 
+            type="success" 
+          />
+        ));
+        onLogout();
+        break;
+      case 'logoutError':
+        toast.custom((t) => (
+          <CustomToast 
+            toast={t} 
+            message="Failed to logout" 
+            type="error" 
+          />
+        ));
+        break;
+      default:
+        break;
+    }
+  };
+
   const navItems = [
     { label: 'Dashboard', icon: '/icons/sidebar/Dashboard.svg', to: '/' },
     { label: 'Transactions', icon: '/icons/sidebar/Transactions.svg', to: '/transactions' },
@@ -22,6 +60,7 @@ export default function Sidebar({ onLogout }) {
             <NavLink
               key={item.label}
               to={item.to}
+              onClick={() => handleSidebarAction('navigate', item.label)}
               className={({ isActive }) =>
                 `flex items-center gap-0.5 sm:gap-1 md:gap-2 px-0.5 sm:px-1 md:px-2 py-1 sm:py-1.5 md:py-2 rounded-md sm:rounded-lg text-[9px] sm:text-[10px] md:text-sm transition-colors w-full sm:w-[140px] md:w-[200px] h-[28px] sm:h-[32px] md:h-[48px] ${
                   isActive ? 'bg-[#C8EE44] text-gray-900' : 'text-gray-500 hover:bg-gray-100'
@@ -41,7 +80,7 @@ export default function Sidebar({ onLogout }) {
             <span>Help</span>
           </a>
           <button
-            onClick={onLogout}
+            onClick={() => handleSidebarAction('logout')}
             className="w-full flex items-center gap-0.5 sm:gap-1 md:gap-2 px-0.5 sm:px-1 md:px-2 py-0.5 sm:py-1 md:py-1.5 rounded-md sm:rounded-lg text-left text-[9px] sm:text-[10px] md:text-sm text-gray-500 hover:bg-red-50 hover:text-red-600 transition-colors"
           >
             <img src="/icons/sidebar/Logout.svg" alt="Logout" className="h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-5 md:w-5" />

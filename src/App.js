@@ -48,7 +48,25 @@ export default function App() {
           <AppRouter />
         </ErrorBoundary>
       </BrowserRouter>
-      <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
+      <Toaster 
+        position="top-center" 
+        toastOptions={{ 
+          duration: 6000,
+          className: 'toast-container',
+          style: {
+            background: 'transparent',
+            boxShadow: 'none',
+            padding: 0,
+            margin: 0,
+          }
+        }}
+        containerStyle={{
+          top: 40,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 9999,
+        }}
+      />
     </AuthProvider>
   );
 }

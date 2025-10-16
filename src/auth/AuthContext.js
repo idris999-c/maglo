@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useState, useCallback } from 'react';
 import http, { ApiError } from '../utils/httpClient';
 
 const AuthContext = createContext(null);
@@ -7,6 +7,7 @@ export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showWelcomeAnimation, setShowWelcomeAnimation] = useState(false);
 
   useEffect(() => {
     const raw = localStorage.getItem('maglo_auth');
@@ -20,40 +21,63 @@ export function AuthProvider({ children }) {
     setLoading(false);
   }, []);
 
-  const login = async ({ email, password }) => {
+  const login = useCallback(async ({ email, password }) => {
     setLoading(true);
     try {
       const { data } = await http.post('/users/login', { email, password });
       const token = data?.data?.accessToken;
       const userResp = data?.data?.user;
       const nextUser = userResp || null;
-      if (!token) throw new Error('Erişim tokenı alınamadı');
+      if (!token) throw new Error('Access token could not be obtained');
       localStorage.setItem('maglo_auth', JSON.stringify({ token, user: nextUser }));
       setUser(nextUser);
       setIsAuthenticated(true);
+      setShowWelcomeAnimation(true); // Login sonrası animasyon göster
     } catch (err) {
       const msg = err instanceof ApiError ? err.meta?.data?.message || err.message : err.message;
-      throw new Error(msg || 'Giriş başarısız');
+      throw new Error(msg || 'Login failed');
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const register = async ({ fullName, email, password }) => {
+  const logout = useCallback(async () => {
+    try {
+      await http.post('/users/logout');
+    } catch (_) {}
+    localStorage.removeItem('maglo_auth');
+    setIsAuthenticated(false);
+    setUser(null);
+    setShowWelcomeAnimation(false); // Logout sonrası animasyonu kapat
+  }, []);
+
+  const hideWelcomeAnimation = useCallback(() => {
+    setShowWelcomeAnimation(false);
+  }, []);
+
+  const register = useCallback(async ({ fullName, email, password }) => {
     setLoading(true);
     try {
       await http.post('/users/register', { fullName, email, password });
-      // Kayıt başarılı ise direkt login akışı kullanıcının tercihine göre yapılabilir
-      await login({ email, password });
+      // If registration is successful, direct login flow can be done according to user preference
+      const { data } = await http.post('/users/login', { email, password });
+      const token = data?.data?.accessToken;
+      const userResp = data?.data?.user;
+      const nextUser = userResp || null;
+      if (!token) throw new Error('Access token could not be obtained');
+      localStorage.setItem('maglo_auth', JSON.stringify({ token, user: nextUser }));
+      setUser(nextUser);
+      setIsAuthenticated(true);
+      setShowWelcomeAnimation(true); // Show animation after register
     } catch (err) {
       const msg = err instanceof ApiError ? err.meta?.data?.message || err.message : err.message;
-      throw new Error(msg || 'Kayıt başarısız');
+      throw new Error(msg || 'Registration failed');
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const refreshToken = async () => {
+  const refreshToken = useCallback(async () => {
     try {
       const { data } = await http.post('/users/refresh-token');
       const newToken = data.accessToken;
@@ -76,18 +100,9 @@ export function AuthProvider({ children }) {
       logout();
       throw err;
     }
-  };
+  }, [logout]);
 
-  const logout = async () => {
-    try {
-      await http.post('/users/logout');
-    } catch (_) {}
-    localStorage.removeItem('maglo_auth');
-    setIsAuthenticated(false);
-    setUser(null);
-  };
-
-  const value = useMemo(() => ({ isAuthenticated, user, login, register, logout, refreshToken, loading }), [isAuthenticated, user, loading]);
+  const value = useMemo(() => ({ isAuthenticated, user, login, register, logout, refreshToken, loading, showWelcomeAnimation, hideWelcomeAnimation }), [isAuthenticated, user, loading, login, register, logout, refreshToken, showWelcomeAnimation, hideWelcomeAnimation]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

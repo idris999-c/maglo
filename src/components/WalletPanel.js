@@ -1,7 +1,53 @@
 import React from 'react';
 import WalletCard from './WalletCard';
+import toast from 'react-hot-toast';
+import CustomToast from './CustomToast';
 
 export default function WalletPanel({ cards = [], loading = false }) {
+  // Toast mesajları için fonksiyonlar
+  const handleCardAction = (action) => {
+    switch (action) {
+      case 'add':
+        toast.custom((t) => (
+          <CustomToast 
+            toast={t} 
+            message="Card added successfully" 
+            type="success" 
+          />
+        ));
+        break;
+      case 'remove':
+        toast.custom((t) => (
+          <CustomToast 
+            toast={t} 
+            message="Card removed successfully" 
+            type="success" 
+          />
+        ));
+        break;
+      case 'update':
+        toast.custom((t) => (
+          <CustomToast 
+            toast={t} 
+            message="Card updated successfully" 
+            type="success" 
+          />
+        ));
+        break;
+      case 'error':
+        toast.custom((t) => (
+          <CustomToast 
+            toast={t} 
+            message="Failed to load cards" 
+            type="error" 
+          />
+        ));
+        break;
+      default:
+        break;
+    }
+  };
+
   if (loading) {
     return (
       <div className="bg-white p-1.5 sm:p-2 md:p-5 lg:p-6">

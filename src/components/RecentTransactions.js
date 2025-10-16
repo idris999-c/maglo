@@ -1,5 +1,7 @@
 import React from 'react';
 import { currencyFormat, dateStr } from '../utils/format';
+import toast from 'react-hot-toast';
+import CustomToast from './CustomToast';
 
 function TransactionRow({ name, type, amount, date, currencyCode, locale, business, image }) {
   // API'den gelen image URL'ini kullan, yoksa varsayılan icon
@@ -24,11 +26,51 @@ function TransactionRow({ name, type, amount, date, currencyCode, locale, busine
 }
 
 export default function RecentTransactions({ transactions, loading, currencyCode, locale }) {
+  // Toast mesajları için fonksiyonlar
+  const handleTransactionAction = (action) => {
+    switch (action) {
+      case 'viewAll':
+        toast.custom((t) => (
+          <CustomToast 
+            toast={t} 
+            message="Loading all transactions..." 
+            type="info" 
+          />
+        ));
+        break;
+      case 'loadError':
+        toast.custom((t) => (
+          <CustomToast 
+            toast={t} 
+            message="Failed to load transactions" 
+            type="error" 
+          />
+        ));
+        break;
+      case 'transactionClick':
+        toast.custom((t) => (
+          <CustomToast 
+            toast={t} 
+            message="Transaction details loaded" 
+            type="success" 
+          />
+        ));
+        break;
+      default:
+        break;
+    }
+  };
+
   return (
     <div className="bg-white rounded-lg sm:rounded-xl md:rounded-2xl pl-[8px] sm:pl-[12px] md:pl-[25px] pr-[8px] sm:pr-[12px] md:pr-[19px] py-2 sm:py-3 md:py-4 border w-full max-w-[717px]">
       <div className="flex items-center justify-between mb-0.5 sm:mb-1 md:mb-2">
         <h3 className="font-medium text-gray-900 text-[10px] sm:text-[12px] md:text-[18px]">Recent Transaction</h3>
-        <button className="text-[8px] sm:text-[9px] md:text-[14px] font-bold text-[#29A073]">View All <span aria-hidden className="inline-block w-[8px] h-[8px] sm:w-[10px] sm:h-[10px] md:w-[18px] md:h-[18px]">›</span></button>
+        <button 
+          onClick={() => handleTransactionAction('viewAll')}
+          className="text-[8px] sm:text-[9px] md:text-[14px] font-bold text-[#29A073]"
+        >
+          View All <span aria-hidden className="inline-block w-[8px] h-[8px] sm:w-[10px] sm:h-[10px] md:w-[18px] md:h-[18px]">›</span>
+        </button>
       </div>
       {loading ? (
         <div className="space-y-0.5 sm:space-y-1 md:space-y-2">
@@ -49,17 +91,22 @@ export default function RecentTransactions({ transactions, loading, currencyCode
           </div>
           <div className="divide-y">
             {transactions.map(t => (
-              <TransactionRow
+              <div 
                 key={t.id}
-                name={t.name}
-                type={t.type}
-                amount={t.amount}
-                date={t.date}
-                currencyCode={currencyCode}
-                locale={locale}
-                business={t.business}
-                image={t.image}
-              />
+                onClick={() => handleTransactionAction('transactionClick')}
+                className="cursor-pointer hover:bg-gray-50 rounded"
+              >
+                <TransactionRow
+                  name={t.name}
+                  type={t.type}
+                  amount={t.amount}
+                  date={t.date}
+                  currencyCode={currencyCode}
+                  locale={locale}
+                  business={t.business}
+                  image={t.image}
+                />
+              </div>
             ))}
           </div>
         </div>
