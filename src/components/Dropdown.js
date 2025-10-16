@@ -48,21 +48,21 @@ export default function Dropdown({
 
   return (
     <div className="relative" ref={rootRef}>
-      <button
-        ref={buttonRef}
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        className={`flex items-center gap-2 text-sm text-gray-700 px-3 py-1 rounded-md border border-transparent hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-900/10 ${buttonClassName}`}
-        style={{ backgroundColor: '#F8F8F8' }}
-        aria-haspopup="listbox"
-        aria-expanded={open}
-      >
-        <span className="truncate max-w-[10rem]">{selectedLabel}</span>
-        <img src="/icons/topbar/Dropdown.svg" alt="" aria-hidden className="h-4 w-4 opacity-70" />
-      </button>
+                  <button
+                    ref={buttonRef}
+                    type="button"
+                    onClick={() => setOpen((o) => !o)}
+                    className={`flex items-center gap-2 text-sm text-gray-700 px-3 py-2 rounded-md border border-transparent hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-900/10 ${buttonClassName}`}
+                    style={{ backgroundColor: '#F8F8F8' }}
+                    aria-haspopup="listbox"
+                    aria-expanded={open}
+                  >
+                    <span className="truncate max-w-24">{selectedLabel}</span>
+                    <img src="/icons/topbar/Dropdown.svg" alt="" aria-hidden className="h-4 w-4 opacity-70" />
+                  </button>
       {open && (
         <div
-          className={`absolute ${align === 'right' ? 'right-0' : 'left-0'} mt-1 min-w-[9rem] rounded-md border bg-white shadow z-10 ${menuClassName}`}
+          className={`absolute ${align === 'right' ? 'right-0' : 'left-0'} mt-1 min-w-32 rounded-md border bg-white shadow-lg z-10 ${menuClassName}`}
           role="listbox"
         >
           {options.map((opt) => {

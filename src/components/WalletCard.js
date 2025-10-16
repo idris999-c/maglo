@@ -15,27 +15,27 @@ export default function WalletCard({
     <div
       className={
         `${isDark ? 'from-[#4A4A49] to-[#20201F] text-white' : 'from-white/60 to-white/25 backdrop-blur-sm ring-1 ring-white/60 text-gray-900'} ` +
-        'relative rounded-2xl p-5 bg-gradient-to-br shadow-sm overflow-hidden w-full ' +
+        'relative rounded-2xl p-4 bg-gradient-to-br shadow-sm overflow-hidden ' +
         className
       }
       aria-label={`Maglo ${bankLabel} card`}
     >
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-sm font-medium">
-          <span className={`text-base font-semibold ${isDark ? '' : 'text-white'}`}>Maglo.</span>
+        <div className="flex items-center gap-2 text-xs font-medium">
+          <span className={`text-[16px] font-semibold ${isDark ? '' : 'text-white'}`}>Maglo.</span>
           <span className={isDark ? 'opacity-60' : 'text-white/70'}>|</span>
-          <span className={isDark ? 'opacity-30' : 'text-white/90'}>{bankLabel.replace('Maglo | ', '')}</span>
+          <span className={`text-[12px] ${isDark ? 'opacity-30' : 'text-white/90'}`}>{bankLabel.replace('Maglo | ', '')}</span>
         </div>
       </div>
       
 
-      <div className="flex items-center justify-between mt-6">
-        <img src="/icons/wallet/Group.svg" alt="Chip" className={`${isDark ? 'h-8' : 'h-7'}`} />
-        <img src="/icons/wallet/wifi.3 1.png" alt="Wave" className={`${isDark ? 'h-9' : 'h-6'} opacity-70`} />
+      <div className="flex items-center justify-between mt-5">
+        <img src="/icons/wallet/Group.svg" alt="Chip" className={`${isDark ? 'w-[38px] h-[30px]' : 'h-6'}`} />
+        <img src="/icons/wallet/wifi.3 1.png" alt="Wave" className={`${isDark ? 'h-8' : 'h-5'} opacity-70`} />
       </div>
 
-      <div className="mt-5">
-        <p className={`font-mono text-lg md:text-xl tracking-[0.2em] md:tracking-[0.25em] whitespace-nowrap font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+      <div className="mt-4">
+        <p className={`font-mono text-base tracking-[0.2em] whitespace-nowrap font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
           {maskedDisplay}
         </p>
         {expiry && (
@@ -49,14 +49,14 @@ export default function WalletCard({
         <img
           src="/icons/wallet/International.svg"
           alt="Card brand"
-          className="absolute bottom-5 right-8 sm:bottom-6 sm:right-9 md:bottom-7 md:right-10 h-7 sm:h-8 md:h-9 w-auto"
+          className="absolute bottom-6 right-8 h-8 w-auto"
         />
       )}
       {!isDark && (
         <img
           src="/icons/wallet/Vector.png"
           alt="VISA"
-          className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 md:bottom-5 md:right-5 h-5 w-auto"
+          className="absolute bottom-4 right-4 h-4 w-auto"
         />
       )}
 
