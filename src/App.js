@@ -51,7 +51,7 @@ export default function App() {
       <Toaster 
         position="top-center" 
         toastOptions={{ 
-          duration: 6000,
+          duration: 8000,
           className: 'toast-container',
           style: {
             background: 'transparent',
@@ -61,7 +61,7 @@ export default function App() {
           }
         }}
         containerStyle={{
-          top: 40,
+          top: 20,
           left: '50%',
           transform: 'translateX(-50%)',
           zIndex: 9999,
