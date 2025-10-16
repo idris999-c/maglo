@@ -6,17 +6,14 @@ const cachedApiCall = async (endpoint, apiFunction) => {
   // Önce cache'den kontrol et
   const cached = getCachedData(endpoint);
   if (cached) {
-    console.log(`📦 Cache'den veri alındı: ${endpoint}`);
     return cached;
   }
 
   // Cache'de yoksa API'den çek
-  console.log(`🌐 API'den veri çekiliyor: ${endpoint}`);
   const data = await apiFunction();
   
   // Cache'e kaydet
   setCachedData(endpoint, data);
-  console.log(`💾 Veri cache'e kaydedildi: ${endpoint}`);
   
   return data;
 };

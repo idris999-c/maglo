@@ -8,19 +8,19 @@ function TransactionRow({ name, type, amount, date, currencyCode, locale, busine
   const iconSrc = image || '/icons/recent/Group 41.svg';
 
   return (
-    <div className="py-0.5 sm:py-1 md:py-2 grid grid-cols-1 sm:grid-cols-5 items-center text-[8px] sm:text-[9px] md:text-sm gap-1 sm:gap-2 md:gap-0">
+    <div className="py-3 sm:py-1 md:py-2 grid grid-cols-1 sm:grid-cols-5 items-center text-[10px] sm:text-[9px] md:text-sm gap-2 sm:gap-2 md:gap-0">
       <div className="col-span-1 sm:col-span-2">
         <div className="flex items-center gap-0.5 sm:gap-1 md:gap-2">
-          <img src={iconSrc} alt="" className="h-4 w-4 sm:h-5 sm:w-5 md:h-8 md:w-8 rounded-md sm:rounded-lg" />
+          <img src={iconSrc} alt="" className="h-6 w-6 sm:h-5 sm:w-5 md:h-8 md:w-8 rounded-md sm:rounded-lg" />
           <div className="min-w-0 flex-1">
-            <div className="text-gray-900 font-medium text-[7px] sm:text-[8px] md:text-[14px] truncate">{name}</div>
-            {business && <div className="text-[6px] sm:text-[7px] md:text-[12px] text-gray-500 truncate">{business}</div>}
+            <div className="text-gray-900 font-medium text-[10px] sm:text-[8px] md:text-[14px] truncate">{name}</div>
+            {business && <div className="text-[8px] sm:text-[7px] md:text-[12px] text-gray-500 truncate">{business}</div>}
           </div>
         </div>
       </div>
-      <div className="text-gray-500 text-center sm:text-center text-[7px] sm:text-[8px] md:text-[14px]">{type}</div>
-      <div className="text-right sm:text-right font-semibold text-gray-900 text-[7px] sm:text-[8px] md:text-[14px]">{currencyFormat(amount, currencyCode, locale)}</div>
-      <div className="text-right text-gray-500 whitespace-nowrap text-[7px] sm:text-[8px] md:text-[14px]">{dateStr(date, 'en-GB')}</div>
+      <div className="text-gray-500 text-center sm:text-center text-[9px] sm:text-[8px] md:text-[14px]">{type}</div>
+      <div className="text-right sm:text-right font-semibold text-gray-900 text-[9px] sm:text-[8px] md:text-[14px]">{currencyFormat(amount, currencyCode, locale)}</div>
+      <div className="text-right text-gray-500 whitespace-nowrap text-[9px] sm:text-[8px] md:text-[14px]">{dateStr(date, 'en-GB')}</div>
     </div>
   );
 }
@@ -62,12 +62,13 @@ export default function RecentTransactions({ transactions, loading, currencyCode
   };
 
   return (
-    <div className="bg-white rounded-lg sm:rounded-xl md:rounded-2xl pl-[8px] sm:pl-[12px] md:pl-[25px] pr-[8px] sm:pr-[12px] md:pr-[19px] py-2 sm:py-3 md:py-4 border w-full max-w-[717px]">
+    <div className="bg-white rounded-lg sm:rounded-xl md:rounded-2xl pl-[15px] sm:pl-[12px] md:pl-[25px] pr-[15px] sm:pr-[12px] md:pr-[19px] py-4 sm:py-3 md:py-4 border w-[90%] sm:w-full md:w-full">
       <div className="flex items-center justify-between mb-0.5 sm:mb-1 md:mb-2">
         <h3 className="font-medium text-gray-900 text-[10px] sm:text-[12px] md:text-[18px]">Recent Transaction</h3>
         <button 
           onClick={() => handleTransactionAction('viewAll')}
-          className="text-[8px] sm:text-[9px] md:text-[14px] font-bold text-[#29A073]"
+          aria-label="View all transactions"
+          className="text-[8px] sm:text-[9px] md:text-[14px] font-bold text-[#29A073] hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded"
         >
           View All <span aria-hidden className="inline-block w-[8px] h-[8px] sm:w-[10px] sm:h-[10px] md:w-[18px] md:h-[18px]">›</span>
         </button>
@@ -94,7 +95,16 @@ export default function RecentTransactions({ transactions, loading, currencyCode
               <div 
                 key={t.id}
                 onClick={() => handleTransactionAction('transactionClick')}
-                className="cursor-pointer hover:bg-gray-50 rounded"
+                role="button"
+                tabIndex={0}
+                aria-label={`Transaction: ${t.name}, ${t.type}, ${currencyFormat(t.amount, currencyCode, locale)}`}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleTransactionAction('transactionClick');
+                  }
+                }}
+                className="cursor-pointer hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 rounded"
               >
                 <TransactionRow
                   name={t.name}
@@ -114,5 +124,3 @@ export default function RecentTransactions({ transactions, loading, currencyCode
     </div>
   );
 }
-
-

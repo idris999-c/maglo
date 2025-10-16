@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import toast from 'react-hot-toast';
 import CustomToast from '../components/CustomToast';
+import AnimatedButton from '../components/AnimatedButton';
 
 const initialState = { name: '', email: '', password: '' };
 
@@ -82,13 +83,10 @@ export default function SignUp() {
     
     if (isSubmitting) return;
     
-    console.log('Form submitted, validating...');
-    
-    // Clear previous errors
+    // Clear previous errors before validation
     setErrors({});
     
     if (!validate()) {
-      console.log('Validation failed, showing error toasts');
       return;
     }
     
@@ -123,19 +121,6 @@ export default function SignUp() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-[100dvh] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <svg className="animate-spin h-8 w-8 text-[#C8EE44]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-          <p className="text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-[100dvh] grid grid-cols-1 lg:[grid-template-columns:1fr_auto]" data-page-title="maglo - sign up">
@@ -146,7 +131,7 @@ export default function SignUp() {
             <img src="/icons/auth/Logo.png" alt="Maglo" className="h-8" />
           </div>
           <h1 className="text-3xl font-semibold text-gray-900">Create new account</h1>
-          <p className="text-gray-500 mt-2">Welcome back! Please enter your details</p>
+          <p className="text-gray-500 mt-2">Create your account to get started</p>
 
           <label htmlFor="signup-name" className="block mt-8 text-sm font-medium text-gray-700">Full Name</label>
           <input
@@ -213,29 +198,21 @@ export default function SignUp() {
           </div>
           {errors.password && <p id="signup-password-error" className="text-sm text-red-600 mt-1">{errors.password}</p>}
 
-          <button
+          <AnimatedButton
             type="submit"
             disabled={isSubmitting || loading}
+            loading={isSubmitting || loading}
+            loadingText="Creating Account..."
             className={`mt-6 w-full inline-flex items-center justify-center gap-2 rounded-lg font-medium py-2.5 transition ${
               (isSubmitting || loading) 
                 ? 'bg-gray-400 text-gray-600 cursor-not-allowed' 
                 : 'bg-[#C8EE44] hover:brightness-95 text-gray-900'
             }`}
           >
-            {isSubmitting || loading ? (
-              <>
-                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <span>Creating Account...</span>
-              </>
-            ) : (
-              <span>Create Account</span>
-            )}
-          </button>
+            Create Account
+          </AnimatedButton>
 
-          <button type="button" disabled className="mt-4 w-full rounded-lg border border-gray-300 py-2.5 text-gray-700 flex items-center justify-center gap-2">
+          <button type="button" className="mt-4 w-full rounded-lg border border-gray-300 py-2.5 text-gray-700 flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors">
             <img src="/icons/auth/Google.svg" alt="Google" className="h-5" /> Sign up with google
           </button>
 
@@ -249,10 +226,8 @@ export default function SignUp() {
         </form>
       </div>
       <div className="hidden lg:flex items-center justify-end bg-gray-50 lg:min-h-[100dvh]">
-        <img src="/images/auth.jpg" alt="Auth görseli" className="h-full max-h-[100dvh] w-auto object-contain object-right select-none" />
+        <img src="/images/auth.jpg" alt="Authentication illustration" className="h-full max-h-[100dvh] w-auto object-contain object-right select-none" />
       </div>
     </div>
   );
 }
-
-

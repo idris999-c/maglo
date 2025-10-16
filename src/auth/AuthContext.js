@@ -6,7 +6,7 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [showWelcomeAnimation, setShowWelcomeAnimation] = useState(false);
 
   useEffect(() => {
@@ -32,7 +32,7 @@ export function AuthProvider({ children }) {
       localStorage.setItem('maglo_auth', JSON.stringify({ token, user: nextUser }));
       setUser(nextUser);
       setIsAuthenticated(true);
-      setShowWelcomeAnimation(true); // Login sonrası animasyon göster
+      setShowWelcomeAnimation(true);
     } catch (err) {
       const msg = err instanceof ApiError ? err.meta?.data?.message || err.message : err.message;
       throw new Error(msg || 'Login failed');
@@ -48,7 +48,7 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('maglo_auth');
     setIsAuthenticated(false);
     setUser(null);
-    setShowWelcomeAnimation(false); // Logout sonrası animasyonu kapat
+    setShowWelcomeAnimation(false);
   }, []);
 
   const hideWelcomeAnimation = useCallback(() => {
@@ -68,7 +68,7 @@ export function AuthProvider({ children }) {
       localStorage.setItem('maglo_auth', JSON.stringify({ token, user: nextUser }));
       setUser(nextUser);
       setIsAuthenticated(true);
-      setShowWelcomeAnimation(true); // Show animation after register
+      setShowWelcomeAnimation(true);
     } catch (err) {
       const msg = err instanceof ApiError ? err.meta?.data?.message || err.message : err.message;
       throw new Error(msg || 'Registration failed');
@@ -82,7 +82,7 @@ export function AuthProvider({ children }) {
       const { data } = await http.post('/users/refresh-token');
       const newToken = data.accessToken;
       
-      // localStorage'daki token'ı güncelle
+      // Update token in localStorage
       const raw = localStorage.getItem('maglo_auth');
       if (raw) {
         try {
@@ -96,7 +96,7 @@ export function AuthProvider({ children }) {
       
       return newToken;
     } catch (err) {
-      // Refresh token da geçersizse logout
+      // If refresh token is invalid, logout
       logout();
       throw err;
     }

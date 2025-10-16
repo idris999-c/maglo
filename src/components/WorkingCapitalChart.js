@@ -1,7 +1,8 @@
 import React from 'react';
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { currencyFormat } from '../utils/format';
+// import { currencyFormat } from '../utils/format'; // Unused - ChartTooltip uses it
 import Dropdown from './Dropdown';
+import ChartTooltip from './ChartTooltip';
 import toast from 'react-hot-toast';
 import CustomToast from './CustomToast';
 
@@ -52,7 +53,11 @@ export default function WorkingCapitalChart({ data, loading, currencyCode, local
   // Keep the 'Apr' prefix for 30-day view per design
   const formatDayTick = (value) => value;
   return (
-    <div className="bg-white rounded-lg sm:rounded-xl md:rounded-xl pl-[8px] sm:pl-[12px] md:pl-[25px] pt-[8px] sm:pt-[12px] md:pt-[20px] pb-[15px] sm:pb-[20px] md:pb-[50px] pr-[8px] sm:pr-[12px] md:pr-[20px] border w-full max-w-[716px] h-[120px] sm:h-[150px] md:h-[291px]">
+    <div 
+      className="bg-white rounded-lg sm:rounded-xl md:rounded-xl pl-[8px] sm:pl-[12px] md:pl-[25px] pt-[8px] sm:pt-[12px] md:pt-[20px] pb-[15px] sm:pb-[20px] md:pb-[50px] pr-[8px] sm:pr-[12px] md:pr-[20px] border w-full h-[120px] sm:h-[150px] md:h-[291px]"
+      role="img"
+      aria-label={`Working Capital Chart showing ${period} data with income and expense trends`}
+    >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-0">
         <div className="flex items-center gap-0.5 sm:gap-1 md:gap-2">
           <div className="font-semibold text-[10px] sm:text-[12px] md:text-[18px] text-gray-900">Working Capital</div>
@@ -108,7 +113,10 @@ export default function WorkingCapitalChart({ data, loading, currencyCode, local
                 tickFormatter={(v)=> period === 'daily' ? `${Math.round(v/1000)}K` : (period === '30d' ? `${Math.round(v/1000)}K` : `${Math.round(v/1000)}K`)}
                 tickMargin={12}
               />
-              <Tooltip formatter={(v) => currencyFormat(v, currencyCode, locale)} cursor={{ fill: 'rgba(229,231,235,0.35)' }} />
+              <Tooltip 
+                content={<ChartTooltip currencyCode={currencyCode} locale={locale} />} 
+                cursor={{ fill: 'rgba(229,231,235,0.35)' }} 
+              />
               <Line type="monotone" dataKey="income" stroke="#29A073" strokeWidth={3} dot={false} strokeLinecap="round" strokeLinejoin="round" />
               <Line type="monotone" dataKey="expense" stroke="#C8EE44" strokeWidth={3} dot={false} strokeLinecap="round" strokeLinejoin="round" />
             </LineChart>

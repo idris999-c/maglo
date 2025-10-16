@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { handleApiError } from './errorHandler';
 
 const BASE_URL = 'https://case.nodelabs.dev/api';
 
@@ -45,21 +46,18 @@ http.interceptors.response.use(
     const originalRequest = error.config;
     const status = error?.response?.status;
     const data = error?.response?.data;
-    const message = data?.message || error?.message || 'Beklenmeyen bir hata oluştu';
+    const message = data?.message || error?.message || 'An unexpected error occurred';
 
-    // 401 hatası ve daha önce retry edilmemişse refresh token dene
+    // 401 error and not retried before, try refresh token
     if (status === 401 && !originalRequest._retry) {
-      console.log('🔄 Token süresi bitti, refresh token deneniyor...');
       originalRequest._retry = true;
       
       try {
-        // Refresh token çağrısı
-        console.log('🔄 /users/refresh-token çağrısı yapılıyor...');
+        // Refresh token call
         const { data: refreshData } = await http.post('/users/refresh-token');
         const newToken = refreshData.accessToken;
-        console.log('✅ Yeni access token alındı:', newToken.substring(0, 20) + '...');
         
-        // localStorage'daki token'ı güncelle
+        // Update token in localStorage
         const raw = localStorage.getItem('maglo_auth');
         if (raw) {
           try {
@@ -71,20 +69,20 @@ http.interceptors.response.use(
           } catch (_) {}
         }
         
-        // Orijinal isteği yeni token ile tekrarla
+        // Retry original request with new token
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
-        console.log('🔄 Orijinal istek yeni token ile tekrarlanıyor...');
         return http(originalRequest);
         
       } catch (refreshError) {
-        // Refresh token da başarısızsa logout
-        console.log('❌ Refresh token başarısız, logout yapılıyor...');
+        // If refresh token also fails, logout
         localStorage.removeItem('maglo_auth');
         window.location.href = '/signin';
         return Promise.reject(refreshError);
       }
     }
 
+    // Central error handling
+    handleApiError(error);
     throw new ApiError(message, { status, data });
   }
 );

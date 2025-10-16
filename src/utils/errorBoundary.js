@@ -20,8 +20,8 @@ export class ErrorBoundary extends React.Component {
     if (this.state.hasError) {
       return this.props.fallback || (
         <div className="p-6 text-center">
-          <h2 className="text-lg font-semibold text-gray-900">Bir şeyler ters gitti.</h2>
-          <p className="text-gray-600 mt-2">Sayfayı yenilemeyi deneyin.</p>
+          <h2 className="text-lg font-semibold text-gray-900">Something went wrong.</h2>
+          <p className="text-gray-600 mt-2">Please try refreshing the page.</p>
         </div>
       );
     }
@@ -30,6 +30,3 @@ export class ErrorBoundary extends React.Component {
 }
 
 export default ErrorBoundary;
-
-
-

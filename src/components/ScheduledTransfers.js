@@ -58,7 +58,7 @@ export default function ScheduledTransfers({ transfers, loading, currencyCode, l
   };
 
   return (
-    <div className="bg-white pt-2 sm:pt-3 md:pt-5 pb-2 sm:pb-3 md:pb-5 px-2 sm:px-3 md:px-5 w-full sm:w-[200px] md:w-[350px] lg:w-[420px] h-[180px] sm:h-[220px] md:h-[350px]">
+    <div className="bg-white rounded-lg sm:rounded-xl md:rounded-xl pt-3 sm:pt-3 md:pt-5 pb-3 sm:pb-3 md:pb-5 px-3 sm:px-3 md:px-5 w-[90%] sm:w-[200px] md:w-[350px] lg:w-[420px] h-[200px] sm:h-[220px] md:h-[425px] mb-[20px] sm:mb-[30px] md:mb-[40px] lg:mb-0 border">
       <div className="flex items-center justify-between mb-[8px] sm:mb-[12px] md:mb-[25px]">
         <h3 className="font-medium text-gray-900 text-[10px] sm:text-[12px] md:text-[18px]">Scheduled Transfers</h3>
         <button 
