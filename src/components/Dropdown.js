@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import toast from 'react-hot-toast';
+import CustomToast from './CustomToast';
 
 /**
  * Reusable dropdown component with headless behavior.
@@ -19,6 +21,41 @@ export default function Dropdown({
   const [open, setOpen] = useState(false);
   const rootRef = useRef(null);
   const buttonRef = useRef(null);
+
+  // Toast mesajları için fonksiyonlar
+  const handleDropdownAction = (action, newValue, label) => {
+    switch (action) {
+      case 'currencyChange':
+        toast.custom((t) => (
+          <CustomToast 
+            toast={t} 
+            message={`Currency changed to ${newValue}`} 
+            type="success" 
+          />
+        ));
+        break;
+      case 'languageChange':
+        toast.custom((t) => (
+          <CustomToast 
+            toast={t} 
+            message={`Language changed to ${label}`} 
+            type="success" 
+          />
+        ));
+        break;
+      case 'periodChange':
+        toast.custom((t) => (
+          <CustomToast 
+            toast={t} 
+            message={`Chart period changed to ${label}`} 
+            type="info" 
+          />
+        ));
+        break;
+      default:
+        break;
+    }
+  };
 
   const labelMap = useMemo(() => {
     const map = new Map();
@@ -52,16 +89,17 @@ export default function Dropdown({
         ref={buttonRef}
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className={`flex items-center gap-2 text-sm text-gray-700 bg-[$#F8F8F8] px-3 py-1 rounded-md border border-transparent hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-900/10 ${buttonClassName}`}
+        className={`flex items-center gap-1 sm:gap-1 md:gap-1 text-[12px] sm:text-[9px] md:text-xs text-gray-700 px-3 sm:px-1.5 md:px-2 py-2 sm:py-0.5 md:py-1 rounded-sm sm:rounded-md md:rounded-md border border-transparent hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-900/10 ${buttonClassName}`}
+        style={{ backgroundColor: '#F8F8F8' }}
         aria-haspopup="listbox"
         aria-expanded={open}
       >
-        <span className="truncate max-w-[10rem]">{selectedLabel}</span>
-        <img src="/icons/topbar/Dropdown.svg" alt="" aria-hidden className="h-4 w-4 opacity-70" />
+        <span className="truncate max-w-[4rem] sm:max-w-[6rem] md:max-w-[10rem]">{selectedLabel}</span>
+        <img src="/icons/topbar/Dropdown.svg" alt="" aria-hidden className="h-3 w-3 sm:h-2.5 sm:w-2.5 md:h-3 md:w-3 opacity-70" />
       </button>
       {open && (
         <div
-          className={`absolute ${align === 'right' ? 'right-0' : 'left-0'} mt-1 min-w-[9rem] rounded-md border bg-white shadow z-10 ${menuClassName}`}
+          className={`absolute ${align === 'right' ? 'right-0' : 'left-0'} mt-0.5 sm:mt-1 md:mt-1 min-w-[5rem] sm:min-w-[6rem] md:min-w-[9rem] rounded-sm sm:rounded-md md:rounded-md border bg-white shadow z-10 ${menuClassName}`}
           role="listbox"
         >
           {options.map((opt) => {
@@ -70,13 +108,23 @@ export default function Dropdown({
             return (
               <button
                 key={opt.value}
-                className={`w-full text-left px-3 py-2 text-sm ${isActive ? 'bg-gray-100 text-gray-900' : 'text-gray-700 hover:bg-gray-50'}`}
+                className={`w-full text-left px-3 sm:px-1.5 md:px-2 py-2 sm:py-0.5 md:py-1 text-[12px] sm:text-[9px] md:text-xs ${isActive ? 'bg-gray-100 text-gray-900' : 'text-gray-700 hover:bg-gray-50'}`}
                 role="option"
                 aria-selected={isActive}
                 onClick={() => {
                   onChange && onChange(opt.value);
                   setOpen(false);
                   if (buttonRef.current) buttonRef.current.focus();
+                  
+                  // Toast mesajı göster
+                  const label = opt.label ?? String(opt.value);
+                  if (opt.value === 'USD' || opt.value === 'EUR' || opt.value === 'TRY') {
+                    handleDropdownAction('currencyChange', opt.value, label);
+                  } else if (opt.value === 'en-US' || opt.value === 'en-GB' || opt.value === 'tr-TR') {
+                    handleDropdownAction('languageChange', opt.value, label);
+                  } else if (opt.value === 'daily' || opt.value === '7d' || opt.value === '30d') {
+                    handleDropdownAction('periodChange', opt.value, label);
+                  }
                 }}
               >
                 {label}

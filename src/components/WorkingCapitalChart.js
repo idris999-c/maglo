@@ -1,58 +1,97 @@
 import React from 'react';
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { currencyFormat } from '../utils/format';
+// import { currencyFormat } from '../utils/format'; // Unused - ChartTooltip uses it
 import Dropdown from './Dropdown';
+import ChartTooltip from './ChartTooltip';
+import toast from 'react-hot-toast';
+import CustomToast from './CustomToast';
 
 export default function WorkingCapitalChart({ data, loading, currencyCode, locale, period, onChangePeriod }) {
-  const periodLabel = period === '30d' ? 'Last 30 days' : period === 'daily' ? 'Today' : 'Last 7 days';
+  // Toast mesajları için fonksiyonlar
+  const handleChartAction = (action) => {
+    switch (action) {
+      case 'loadError':
+        toast.custom((t) => (
+          <CustomToast 
+            toast={t} 
+            message="Failed to load chart data" 
+            type="error" 
+          />
+        ));
+        break;
+      case 'dataUpdate':
+        toast.custom((t) => (
+          <CustomToast 
+            toast={t} 
+            message="Chart data updated" 
+            type="success" 
+          />
+        ));
+        break;
+      case 'periodChange':
+        toast.custom((t) => (
+          <CustomToast 
+            toast={t} 
+            message="Chart period changed" 
+            type="info" 
+          />
+        ));
+        break;
+      default:
+        break;
+    }
+  };
+
   const xTick = period === '30d'
     ? { fill: '#475569', fontSize: 10, letterSpacing: -0.3 }
     : period === 'daily'
       ? { fill: '#1f2937', fontSize: 10, letterSpacing: -0.2 }
       : { fill: '#1f2937', fontSize: 12, letterSpacing: -0.2 };
-  const yTick = period === '30d' ? { fill: '#1f2937', fontSize: 11 } : { fill: '#1f2937', fontSize: 12 };
+  const yTick = { fill: '#1f2937', fontSize: 12 };
   const xPadding = period === '30d' ? { left: 16, right: 16 } : { left: 28, right: 20 };
   const xInterval = 0; // show all labels
   // Keep the 'Apr' prefix for 30-day view per design
   const formatDayTick = (value) => value;
-
-  // Compute dynamic Y-axis for daily to make ups/downs visible
-  const dailyMax = Array.isArray(data)
-    ? data.reduce((max, d) => Math.max(max, d.income || 0, d.expense || 0), 0)
-    : 0;
-  const dailyUpper = Math.max(100, Math.ceil(dailyMax * 1.2));
-  const dailyTicks = [0, 0.25, 0.5, 0.75, 1].map((r) => Math.round(dailyUpper * r));
   return (
-    <div className="bg-white rounded-xl p-4 border">
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <div className=" font-semibold text-lg text-gray-900">Working Capital</div>
-          <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 border hidden sm:inline-block" aria-label="current period">
-            {periodLabel}
-          </span>
+    <div 
+      className="bg-white rounded-lg sm:rounded-xl md:rounded-xl pl-[8px] sm:pl-[12px] md:pl-[25px] pt-[8px] sm:pt-[12px] md:pt-[20px] pb-[15px] sm:pb-[20px] md:pb-[50px] pr-[8px] sm:pr-[12px] md:pr-[20px] border w-full h-[120px] sm:h-[150px] md:h-[291px]"
+      role="img"
+      aria-label={`Working Capital Chart showing ${period} data with income and expense trends`}
+    >
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-0">
+        <div className="flex items-center gap-0.5 sm:gap-1 md:gap-2">
+          <div className="font-semibold text-[10px] sm:text-[12px] md:text-[18px] text-gray-900">Working Capital</div>
         </div>
-        <div className="hidden sm:flex items-center gap-6 text-sm text-gray-600">
-          <span className="flex items-center gap-2"><span className="inline-block h-2.5 w-2.5 rounded-full" style={{ backgroundColor: '#29A073' }} />Income</span>
-          <span className="flex items-center gap-2"><span className="inline-block h-2.5 w-2.5 rounded-full" style={{ backgroundColor: '#C8EE44' }} />Expenses</span>
-        </div>
-        <Dropdown
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-4 md:gap-16">
+          <div className="flex items-center gap-1 sm:gap-2 md:gap-4 text-[8px] sm:text-[9px] md:text-xs text-gray-600">
+            <span className="flex items-center gap-0.5 sm:gap-1 md:gap-2"><span className="inline-block h-1.5 w-1.5 sm:h-2 sm:w-2 md:h-2.5 md:w-2.5 rounded-full" style={{ backgroundColor: '#29A073' }} />Income</span>
+            <span className="flex items-center gap-0.5 sm:gap-1 md:gap-2"><span className="inline-block h-1.5 w-1.5 sm:h-2 sm:w-2 md:h-2.5 md:w-2.5 rounded-full" style={{ backgroundColor: '#C8EE44' }} />Expenses</span>
+          </div>
+          <Dropdown
           value={period}
-          onChange={(v)=> onChangePeriod && onChangePeriod(v)}
+          onChange={(v)=> {
+            onChangePeriod && onChangePeriod(v);
+            handleChartAction('periodChange');
+          }}
           options={[
             { value: 'daily', label: 'Today' },
             { value: '7d', label: 'Last 7 days' },
-            { value: '30d', label: 'Last 30 days' },
+            { value: '30d', label: 'Last 6 months' },
           ]}
           align="right"
-          labelForValue={(v)=> (v==='30d' ? 'Last 30 days' : v==='daily' ? 'Today' : 'Last 7 days')}
-        />
+          labelForValue={(v)=> (v==='30d' ? 'Last 6 months' : v==='daily' ? 'Today' : 'Last 7 days')}
+          />
+        </div>
       </div>
       {loading ? (
-        <div className="h-64 rounded bg-gray-200 animate-pulse" />
+        <div className="h-[60px] sm:h-[80px] md:h-56 rounded relative overflow-hidden">
+          <div className="absolute inset-0 bg-gray-200 rounded" />
+          <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/50 to-transparent" />
+        </div>
       ) : (
-        <div className="h-64">
+        <div className="h-[60px] sm:h-[80px] md:h-56">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data} margin={{ top: 10, left: 0, right: 0, bottom: 0 }}>
+            <LineChart data={data || []} margin={{ top: 10, left: 0, right: 0, bottom: 0 }}>
               <XAxis
                 dataKey="day"
                 tickLine={false}
@@ -68,12 +107,16 @@ export default function WorkingCapitalChart({ data, loading, currencyCode, local
               <YAxis
                 tickLine={false}
                 axisLine={false}
-                domain={period === 'daily' ? [0, dailyUpper] : [0, 10000]}
-                ticks={period === 'daily' ? dailyTicks : [0, 3000, 5000, 7000, 10000]}
+                domain={period === 'daily' ? [0, 'dataMax'] : (period === '7d' ? [0, 'dataMax'] : [0, 'dataMax'])}
+                ticks={undefined}
                 tick={yTick}
-                tickFormatter={(v)=> period === 'daily' ? currencyFormat(v, currencyCode, locale) : `${Math.round(v/1000)}K`}
+                tickFormatter={(v)=> period === 'daily' ? `${Math.round(v/1000)}K` : (period === '30d' ? `${Math.round(v/1000)}K` : `${Math.round(v/1000)}K`)}
+                tickMargin={12}
               />
-              <Tooltip formatter={(v) => currencyFormat(v, currencyCode, locale)} cursor={{ fill: 'rgba(229,231,235,0.35)' }} />
+              <Tooltip 
+                content={<ChartTooltip currencyCode={currencyCode} locale={locale} />} 
+                cursor={{ fill: 'rgba(229,231,235,0.35)' }} 
+              />
               <Line type="monotone" dataKey="income" stroke="#29A073" strokeWidth={3} dot={false} strokeLinecap="round" strokeLinejoin="round" />
               <Line type="monotone" dataKey="expense" stroke="#C8EE44" strokeWidth={3} dot={false} strokeLinecap="round" strokeLinejoin="round" />
             </LineChart>

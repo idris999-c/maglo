@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
@@ -8,89 +8,95 @@ import WorkingCapitalChart from '../components/WorkingCapitalChart';
 import RecentTransactions from '../components/RecentTransactions';
 import WalletPanel from '../components/WalletPanel';
 import ScheduledTransfers from '../components/ScheduledTransfers';
-// currencyFormat kaldırıldı: burada kullanılmıyor
+import LottieAnimation from '../components/LottieAnimation';
+import { useDashboardData } from '../hooks/useDashboardData';
 
 export default function Dashboard() {
-  const { user, logout } = useAuth();
+  const { user, logout, showWelcomeAnimation, hideWelcomeAnimation } = useAuth();
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
 
   const [currencyCode, setCurrencyCode] = useState('USD');
   const [locale, setLocale] = useState('en-US');
-  const [period, setPeriod] = useState('daily'); // default to Today
+  const [period, setPeriod] = useState('30d'); // default to Last 6 months
 
-  const chartSource = useMemo(
-    () => {
-      const seven = [
-        { day: 'Apr 14', income: 3600, expense: 5200 },
-        { day: 'Apr 15', income: 7400, expense: 3300 },
-        { day: 'Apr 16', income: 4200, expense: 6800 },
-        { day: 'Apr 17', income: 8100, expense: 4700 },
-        { day: 'Apr 18', income: 2300, expense: 5200 },
-        { day: 'Apr 19', income: 6600, expense: 2100 },
-        { day: 'Apr 20', income: 3500, expense: 5900 },
-      ];
-      const thirty = Array.from({ length: 30 }).map((_, i) => ({ day: `Apr ${i + 1}`, income: 4000 + Math.round(Math.random()*3000), expense: 2000 + Math.round(Math.random()*2000) }));
-      // Daily (hourly) data: sinusoidal pattern + slight noise to ensure visible ups/downs
-      const daily = Array.from({ length: 24 }).map((_, i) => {
-        const rad = (i / 24) * Math.PI * 2;
-        const incomeBase = 800 + 500 * Math.sin(rad - Math.PI / 2) + 200 * Math.sin(rad * 2);
-        const expenseBase = 600 + 350 * Math.cos(rad) - 150 * Math.sin(rad * 2);
-        const income = Math.max(60, Math.round(incomeBase + (Math.random() - 0.5) * 150));
-        const expense = Math.max(40, Math.round(expenseBase + (Math.random() - 0.5) * 120));
-        return { day: `${String(i).padStart(2,'0')}:00`, income, expense };
-      });
-      const weekly = [];
-      for (let i = 0; i < thirty.length; i += 7) {
-        const slice = thirty.slice(i, i + 7);
-        const income = slice.reduce((a, b) => a + b.income, 0);
-        const expense = slice.reduce((a, b) => a + b.expense, 0);
-        weekly.push({ day: `Week ${Math.floor(i / 7) + 1}`, income, expense });
-      }
-      return { '7d': seven, '30d': thirty, weekly, daily };
-    },
-    []
-  );
+  // Manage dashboard data with custom hook
+  const {
+    transactions,
+    totals,
+    scheduledTransfers,
+    workingCapitalData,
+    walletCards,
+    userProfile,
+    loading,
+    error,
+    retryCount,
+    isRetrying,
+    // refetch, // Unused for now
+    retry
+  } = useDashboardData(period);
 
-  const [transactions] = useState([
-    { id: 1, name: 'Iphone 13 Pro MAX', type: 'Mobile', amount: 420.84, date: '2022-04-14' },
-    { id: 2, name: 'Netflix Subscription', type: 'Entertainment', amount: 100.0, date: '2022-04-05' },
-    { id: 3, name: 'Figma Subscription', type: 'Software', amount: 244.2, date: '2022-04-02' },
-  ]);
+  // Static data for Today and Last 7 days
+  const staticChartData = {
+    daily: [
+      { day: '00:00', income: 1200, expense: 800 },
+      { day: '04:00', income: 1500, expense: 900 },
+      { day: '08:00', income: 2200, expense: 1100 },
+      { day: '12:00', income: 1800, expense: 1300 },
+      { day: '16:00', income: 2500, expense: 1000 },
+      { day: '20:00', income: 1900, expense: 1200 }
+    ],
+    '7d': [
+      { day: 'Mon', income: 3600, expense: 6250 },
+      { day: 'Tue', income: 5600, expense: 2400 },
+      { day: 'Wed', income: 2500, expense: 5900 },
+      { day: 'Thu', income: 5750, expense: 2300 },
+      { day: 'Fri', income: 1600, expense: 5600 },
+      { day: 'Sat', income: 5400, expense: 2200 },
+      { day: 'Sun', income: 3250, expense: 4900 }
+    ]
+  };
 
-  const [totals] = useState({ balance: 5240.21, spending: 250.8, saved: 550.25 });
-  const [loading, setLoading] = useState(true);
+  // Select data based on period, using static data as fallback
+  const chartData = workingCapitalData || staticChartData[period] || null;
+  
 
-  useEffect(() => {
-    // Simüle veri yükleme (skeleton göstermek için)
-    const t = setTimeout(() => setLoading(false), 500);
-    return () => clearTimeout(t);
-  }, []);
-
-  const chartData = chartSource[period];
 
   return (
-    <div className="min-h-screen bg-white" data-page-title="maglo - dashboard">
-      <div className="grid gap-3 sm:gap-4 md:gap-6 md:[grid-template-columns:280px_1fr]">
-        <div className="hidden md:block">
+    <div className="min-h-screen bg-white overflow-x-hidden" data-page-title="maglo - dashboard">
+      {/* Welcome Animation Overlay */}
+      {showWelcomeAnimation && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/95 backdrop-blur-sm">
+          <LottieAnimation 
+            onComplete={hideWelcomeAnimation}
+            className="w-48 h-48"
+          />
+        </div>
+      )}
+
+      <div className="grid gap-[8px] sm:gap-[12px] md:gap-[1px] grid-cols-1 lg:grid-cols-[250px_1fr] xl:grid-cols-[250px_1fr] 2xl:grid-cols-[250px_1fr]">
+        <div className="hidden lg:block">
           <Sidebar onLogout={logout} />
         </div>
 
-        <div className="space-y-4 md:space-y-6 px-6 md:px-8 pb-12 md:pb-16">
-          <Topbar user={user} onOpenSidebar={() => setShowMobileSidebar(true)} />
+        <div className="space-y-[15px] sm:space-y-[12px] md:space-y-[40px] px-3 sm:px-2 md:px-4 lg:px-6 xl:px-8 2xl:px-12 pb-4 sm:pb-3 md:pb-6">
+          <Topbar 
+            user={userProfile || user} 
+            onOpenSidebar={() => setShowMobileSidebar(true)} 
+          />
 
           {showMobileSidebar && (
-            <div className="fixed inset-0 z-40 md:hidden">
+            <div className="fixed inset-0 z-40 lg:hidden">
               <div className="absolute inset-0 bg-black/30" onClick={() => setShowMobileSidebar(false)}></div>
-              <div className="absolute left-0 top-0 h-full w-80 bg-[#FAFAFA] p-3">
+              <div className="absolute left-0 top-0 h-full w-[140px] sm:w-[160px] md:w-[200px] bg-[#FAFAFA] p-1 sm:p-1.5 md:p-2">
                 <Sidebar onLogout={() => { setShowMobileSidebar(false); logout(); }} />
               </div>
             </div>
           )}
 
-          <div className="grid gap-4 md:gap-6 md:[grid-template-columns:1fr_415px] lg:[grid-template-columns:1fr_475px]">
-            <main className="space-y-4 md:space-y-6">
+          <div className="grid gap-[8px] sm:gap-[12px] md:gap-[40px] grid-cols-1 lg:grid-cols-[1fr_200px] xl:grid-cols-[1fr_350px] 2xl:grid-cols-[1fr_400px]">
+            <main className="space-y-[8px] sm:space-y-[12px] md:space-y-[30px] max-w-none">
 
-              <div className="flex flex-wrap items-center gap-3 mb-2">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-1 md:gap-2 mb-2 sm:mb-1 md:mb-2">
                 <Dropdown
                   value={currencyCode}
                   onChange={setCurrencyCode}
@@ -115,15 +121,40 @@ export default function Dashboard() {
               </div>
 
               <StatCards totals={totals} loading={loading} currencyCode={currencyCode} locale={locale} />
+              
+              {/* Error and Retry UI */}
+              {error && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                    <span className="text-red-700 text-sm">
+                      {error} {retryCount > 0 && `(Retry ${retryCount}/3)`}
+                    </span>
+                  </div>
+                  <button
+                    onClick={retry}
+                    disabled={isRetrying}
+                    className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isRetrying ? 'Retrying...' : 'Retry'}
+                  </button>
+                </div>
+              )}
 
               <WorkingCapitalChart data={chartData} loading={loading} currencyCode={currencyCode} locale={locale} period={period} onChangePeriod={setPeriod} />
+
+              {/* Tablet modunda wallet ve scheduled transfer'lar */}
+              <div className="lg:hidden grid gap-[8px] sm:gap-[12px] md:gap-[20px] grid-cols-1 sm:grid-cols-2 mb-[20px] sm:mb-[30px] md:mb-[40px]">
+                <WalletPanel cards={walletCards} loading={loading} />
+                <ScheduledTransfers transfers={scheduledTransfers} loading={loading} currencyCode={currencyCode} locale={locale} />
+              </div>
 
               <RecentTransactions transactions={transactions} loading={loading} currencyCode={currencyCode} locale={locale} />
             </main>
 
-            <section className="space-y-6">
-              <WalletPanel />
-              <ScheduledTransfers amounts={[435,132,826,435,228]} loading={loading} currencyCode={currencyCode} locale={locale} />
+            <section className="hidden lg:block space-y-2 sm:space-y-3 md:space-y-4">
+              <WalletPanel cards={walletCards} loading={loading} />
+              <ScheduledTransfers transfers={scheduledTransfers} loading={loading} currencyCode={currencyCode} locale={locale} />
             </section>
           </div>
         </div>
@@ -131,5 +162,3 @@ export default function Dashboard() {
     </div>
   );
 }
-
-

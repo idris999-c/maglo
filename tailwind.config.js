@@ -6,6 +6,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      screens: {
+        '1440': '1440px',
+      },
       fontFamily: {
         sans: [
           'Kumbh Sans',

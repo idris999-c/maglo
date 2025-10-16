@@ -1,51 +1,90 @@
 import React from 'react';
 import { currencyFormat, dateStr } from '../utils/format';
+import toast from 'react-hot-toast';
+import CustomToast from './CustomToast';
 
-function TransactionRow({ name, type, amount, date, currencyCode, locale }) {
-  const lower = (name || '').toLowerCase();
-  const business =
-    lower.includes('netflix') ? 'Netflix' :
-    lower.includes('figma') ? 'Figma, Inc' :
-    lower.includes('iphone') || lower.includes('apple') ? 'Apple, Inc' : '';
-  const iconSrc =
-    lower.includes('netflix') ? '/icons/recent/Group 41-1.svg' :
-    lower.includes('figma') ? '/icons/recent/Group 41-2.svg' :
-    '/icons/recent/Group 41.svg';
+function TransactionRow({ name, type, amount, date, currencyCode, locale, business, image }) {
+  // API'den gelen image URL'ini kullan, yoksa varsayılan icon
+  const iconSrc = image || '/icons/recent/Group 41.svg';
 
   return (
-    <div className="py-4 grid grid-cols-5 items-center text-sm">
-      <div className="col-span-2">
-        <div className="flex items-center gap-3">
-          <img src={iconSrc} alt="" className="h-9 w-9 rounded-lg" />
-          <div>
-            <div className="text-gray-900 font-medium">{name}</div>
-            {business && <div className="text-xs text-gray-500">{business}</div>}
+    <div className="py-3 sm:py-1 md:py-2 grid grid-cols-1 sm:grid-cols-5 items-center text-[10px] sm:text-[9px] md:text-sm gap-2 sm:gap-2 md:gap-0">
+      <div className="col-span-1 sm:col-span-2">
+        <div className="flex items-center gap-0.5 sm:gap-1 md:gap-2">
+          <img src={iconSrc} alt="" className="h-6 w-6 sm:h-5 sm:w-5 md:h-8 md:w-8 rounded-md sm:rounded-lg" />
+          <div className="min-w-0 flex-1">
+            <div className="text-gray-900 font-medium text-[10px] sm:text-[8px] md:text-[14px] truncate">{name}</div>
+            {business && <div className="text-[8px] sm:text-[7px] md:text-[12px] text-gray-500 truncate">{business}</div>}
           </div>
         </div>
       </div>
-      <div className="text-gray-500 text-center">{type}</div>
-      <div className="text-right font-semibold text-gray-900">{currencyFormat(amount, currencyCode, locale)}</div>
-      <div className="text-right text-gray-500 whitespace-nowrap">{dateStr(date, 'en-GB')}</div>
+      <div className="text-gray-500 text-center sm:text-center text-[9px] sm:text-[8px] md:text-[14px]">{type}</div>
+      <div className="text-right sm:text-right font-semibold text-gray-900 text-[9px] sm:text-[8px] md:text-[14px]">{currencyFormat(amount, currencyCode, locale)}</div>
+      <div className="text-right text-gray-500 whitespace-nowrap text-[9px] sm:text-[8px] md:text-[14px]">{dateStr(date, 'en-GB')}</div>
     </div>
   );
 }
 
 export default function RecentTransactions({ transactions, loading, currencyCode, locale }) {
+  // Toast mesajları için fonksiyonlar
+  const handleTransactionAction = (action) => {
+    switch (action) {
+      case 'viewAll':
+        toast.custom((t) => (
+          <CustomToast 
+            toast={t} 
+            message="Loading all transactions..." 
+            type="info" 
+          />
+        ));
+        break;
+      case 'loadError':
+        toast.custom((t) => (
+          <CustomToast 
+            toast={t} 
+            message="Failed to load transactions" 
+            type="error" 
+          />
+        ));
+        break;
+      case 'transactionClick':
+        toast.custom((t) => (
+          <CustomToast 
+            toast={t} 
+            message="Transaction details loaded" 
+            type="success" 
+          />
+        ));
+        break;
+      default:
+        break;
+    }
+  };
+
   return (
-    <div className="bg-white rounded-2xl p-6 border">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="font-medium text-gray-900">Recent Transaction</h3>
-        <button className="text-sm font-medium text-[#29A073]">View All <span aria-hidden>›</span></button>
+    <div className="bg-white rounded-lg sm:rounded-xl md:rounded-2xl pl-[15px] sm:pl-[12px] md:pl-[25px] pr-[15px] sm:pr-[12px] md:pr-[19px] py-4 sm:py-3 md:py-4 border w-[90%] sm:w-full md:w-full">
+      <div className="flex items-center justify-between mb-0.5 sm:mb-1 md:mb-2">
+        <h3 className="font-medium text-gray-900 text-[10px] sm:text-[12px] md:text-[18px]">Recent Transaction</h3>
+        <button 
+          onClick={() => handleTransactionAction('viewAll')}
+          aria-label="View all transactions"
+          className="text-[8px] sm:text-[9px] md:text-[14px] font-bold text-[#29A073] hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded"
+        >
+          View All <span aria-hidden className="inline-block w-[8px] h-[8px] sm:w-[10px] sm:h-[10px] md:w-[18px] md:h-[18px]">›</span>
+        </button>
       </div>
       {loading ? (
-        <div className="space-y-2">
+        <div className="space-y-0.5 sm:space-y-1 md:space-y-2">
           {[...Array(3)].map((_,i)=> (
-            <div key={i} className="h-10 rounded bg-gray-200 animate-pulse" />
+            <div key={i} className="h-6 sm:h-8 md:h-10 rounded relative overflow-hidden">
+              <div className="absolute inset-0 bg-gray-200 rounded" />
+              <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/50 to-transparent" />
+            </div>
           ))}
         </div>
       ) : (
         <div>
-          <div className="grid grid-cols-5 text-[11px] uppercase tracking-wide text-gray-500 font-semibold pb-2">
+          <div className="hidden sm:grid grid-cols-5 text-[8px] sm:text-[9px] md:text-[12px] uppercase tracking-wide text-gray-500 font-semibold py-1 sm:py-2 md:py-3">
             <div className="col-span-2 pl-1">Name/Business</div>
             <div className="text-center">Type</div>
             <div className="text-right">Amount</div>
@@ -53,15 +92,31 @@ export default function RecentTransactions({ transactions, loading, currencyCode
           </div>
           <div className="divide-y">
             {transactions.map(t => (
-              <TransactionRow
+              <div 
                 key={t.id}
-                name={t.name}
-                type={t.type}
-                amount={t.amount}
-                date={t.date}
-                currencyCode={currencyCode}
-                locale={locale}
-              />
+                onClick={() => handleTransactionAction('transactionClick')}
+                role="button"
+                tabIndex={0}
+                aria-label={`Transaction: ${t.name}, ${t.type}, ${currencyFormat(t.amount, currencyCode, locale)}`}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleTransactionAction('transactionClick');
+                  }
+                }}
+                className="cursor-pointer hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 rounded"
+              >
+                <TransactionRow
+                  name={t.name}
+                  type={t.type}
+                  amount={t.amount}
+                  date={t.date}
+                  currencyCode={currencyCode}
+                  locale={locale}
+                  business={t.business}
+                  image={t.image}
+                />
+              </div>
             ))}
           </div>
         </div>
@@ -69,5 +124,3 @@ export default function RecentTransactions({ transactions, loading, currencyCode
     </div>
   );
 }
-
-

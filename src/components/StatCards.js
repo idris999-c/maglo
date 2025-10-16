@@ -1,28 +1,78 @@
 import React from 'react';
 import { currencyFormat } from '../utils/format';
+import toast from 'react-hot-toast';
+import CustomToast from './CustomToast';
 
 export default function StatCards({ totals, loading, currencyCode, locale }) {
+  // Toast mesajları için fonksiyonlar
+  const handleStatAction = (action) => {
+    switch (action) {
+      case 'loadError':
+        toast.custom((t) => (
+          <CustomToast 
+            toast={t} 
+            message="Failed to load financial data" 
+            type="error" 
+          />
+        ));
+        break;
+      case 'dataUpdate':
+        toast.custom((t) => (
+          <CustomToast 
+            toast={t} 
+            message="Financial data updated" 
+            type="success" 
+          />
+        ));
+        break;
+      case 'cardClick':
+        toast.custom((t) => (
+          <CustomToast 
+            toast={t} 
+            message="Financial details loaded" 
+            type="info" 
+          />
+        ));
+        break;
+      default:
+        break;
+    }
+  };
+
   const Card = ({ label, value, icon, variant }) => {
     const isDark = variant === 'dark';
     return (
       <div
-        className={`w-[320px] h-[160px] rounded-2xl p-5 flex items-center gap-4 ${
+        onClick={() => handleStatAction('cardClick')}
+        role="button"
+        tabIndex={0}
+        aria-label={`${label}: ${currencyFormat(value, currencyCode, locale)}`}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleStatAction('cardClick');
+          }
+        }}
+        className={`w-[85%] sm:w-full md:w-full h-[80px] sm:h-[70px] md:h-[105px] rounded-lg sm:rounded-xl md:rounded-2xl p-3 sm:p-2 md:p-4 flex items-center gap-2 sm:gap-2 md:gap-3 cursor-pointer hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-transform ${
           isDark ? 'bg-[#363A3F] text-white' : 'bg-[#F8F8F8] text-gray-900'
         }`}
       >
         <div
-          className={`w-12 h-12 rounded-full flex items-center justify-center ${
+          className={`w-[20px] h-[20px] sm:w-[24px] sm:h-[24px] md:w-[35px] md:h-[35px] rounded-full flex items-center justify-center ${
             isDark ? 'bg-white/10' : 'bg-[#EDEDED]'
           }`}
         >
-          <img src={icon} alt="" className="w-6 h-6" />
+          <img src={icon} alt="" className="w-[12px] h-[12px] sm:w-[16px] sm:h-[16px] md:w-[25px] md:h-[25px]" />
         </div>
-        <div className="min-w-0">
-          <p className={`${isDark ? 'text-gray-200' : 'text-gray-500'} text-[14px]`}>{label}</p>
+        <div className="min-w-0 flex-1">
+          <p className={`${isDark ? 'text-gray-200' : 'text-gray-500'} text-[10px] sm:text-[10px] md:text-[14px] leading-tight`}>{label}</p>
           {loading ? (
-            <div className={`${isDark ? 'bg-white/20' : 'bg-gray-200'} h-7 mt-2 rounded animate-pulse`} />
+            <div className="mt-[4px] sm:mt-[6px] md:mt-[10px] h-3 sm:h-4 md:h-5 rounded relative overflow-hidden">
+              <div className={`${isDark ? 'bg-white/20' : 'bg-gray-200'} absolute inset-0 rounded`}></div>
+              <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/50 to-transparent" style={{ WebkitMaskImage: 'linear-gradient(black, black)' }} />
+            </div>
           ) : (
-            <p className={`text-[28px] font-semibold mt-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+            <p className={`text-[16px] sm:text-[16px] md:text-[24px] font-semibold leading-tight mt-[4px] sm:mt-[6px] md:mt-[10px] ${isDark ? 'text-white' : 'text-gray-900'}`}>
               {currencyFormat(value, currencyCode, locale)}
             </p>
           )}
@@ -56,7 +106,7 @@ export default function StatCards({ totals, loading, currencyCode, locale }) {
   ];
 
   return (
-    <div className="flex flex-wrap justify-between gap-8 w-full">
+    <div className="flex flex-col sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-[12px] sm:gap-[12px] md:gap-[25px] w-full items-center">
       {items.map(({ key, label, value, icon, variant }) => (
         <Card key={key} label={label} value={value} icon={icon} variant={variant} />
       ))}
