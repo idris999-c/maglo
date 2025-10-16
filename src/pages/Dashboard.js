@@ -166,83 +166,62 @@ export default function Dashboard() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50" data-page-title="maglo - dashboard">
-      <div className="flex">
-        {/* Desktop Sidebar */}
-        <div className="hidden lg:block">
+    <div className="min-h-screen bg-white" data-page-title="maglo - dashboard">
+      <div className="grid gap-[8px] sm:gap-[12px] md:gap-[40px] grid-cols-1 md:grid-cols-[140px_1fr] lg:grid-cols-[250px_1fr]">
+        <div className="hidden md:block">
           <Sidebar onLogout={logout} />
         </div>
 
-        {/* Main Content */}
-        <div className="flex-1 min-w-0">
-          <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
-            <Topbar user={userProfile || user} onOpenSidebar={() => setShowMobileSidebar(true)} />
+        <div className="space-y-[8px] sm:space-y-[12px] md:space-y-[40px] px-1 sm:px-2 md:px-4 pb-2 sm:pb-3 md:pb-6">
+          <Topbar user={userProfile || user} onOpenSidebar={() => setShowMobileSidebar(true)} />
 
-            {/* Mobile/Tablet Sidebar Overlay */}
-            {showMobileSidebar && (
-              <div className="fixed inset-0 z-50 lg:hidden">
-                <div className="absolute inset-0 bg-black/50" onClick={() => setShowMobileSidebar(false)}></div>
-                <div className="absolute left-0 top-0 h-full w-64 bg-[#FAFAFA] shadow-xl">
-                  <div className="flex justify-end p-4">
-                    <button 
-                      onClick={() => setShowMobileSidebar(false)} 
-                      className="p-2 rounded-lg hover:bg-gray-200"
-                      aria-label="Close menu"
-                    >
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M18 6L6 18M6 6l12 12" stroke="#111827" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </button>
-                  </div>
-                  <Sidebar onLogout={() => { setShowMobileSidebar(false); logout(); }} />
-                </div>
-              </div>
-            )}
-
-            {/* Content Grid */}
-            <div className="mt-6 grid grid-cols-1 xl:grid-cols-3 gap-6">
-              {/* Left Column - Main Content */}
-              <div className="xl:col-span-2 space-y-6">
-                {/* Currency/Locale Dropdowns */}
-                <div className="flex flex-wrap items-center gap-3">
-                  <Dropdown
-                    value={currencyCode}
-                    onChange={setCurrencyCode}
-                    options={[
-                      { value: 'USD', label: 'USD' },
-                      { value: 'EUR', label: 'EUR' },
-                      { value: 'TRY', label: 'TRY' },
-                    ]}
-                    buttonClassName="bg-[#F8F8F8]"
-                  />
-                  <Dropdown
-                    value={locale}
-                    onChange={setLocale}
-                    options={[
-                      { value: 'en-US', label: 'en-US' },
-                      { value: 'en-GB', label: 'en-GB' },
-                      { value: 'tr-TR', label: 'tr-TR' },
-                    ]}
-                    buttonClassName="bg-[#F8F8F8]"
-                  />
-                </div>
-
-                {/* StatCards */}
-                <StatCards totals={totals} loading={loading} currencyCode={currencyCode} locale={locale} />
-
-                {/* WorkingCapitalChart */}
-                <WorkingCapitalChart data={chartData} loading={loading} currencyCode={currencyCode} locale={locale} period={period} onChangePeriod={setPeriod} />
-
-                {/* RecentTransactions */}
-                <RecentTransactions transactions={transactions} loading={loading} currencyCode={currencyCode} locale={locale} />
-              </div>
-
-              {/* Right Column - Sidebar Content */}
-              <div className="xl:col-span-1 space-y-6">
-                <WalletPanel cards={walletCards} loading={loading} />
-                <ScheduledTransfers transfers={scheduledTransfers} loading={loading} currencyCode={currencyCode} locale={locale} />
+          {showMobileSidebar && (
+            <div className="fixed inset-0 z-40 md:hidden">
+              <div className="absolute inset-0 bg-black/30" onClick={() => setShowMobileSidebar(false)}></div>
+              <div className="absolute left-0 top-0 h-full w-[140px] sm:w-[160px] bg-[#FAFAFA] p-1 sm:p-1.5">
+                <Sidebar onLogout={() => { setShowMobileSidebar(false); logout(); }} />
               </div>
             </div>
+          )}
+
+          <div className="grid gap-[8px] sm:gap-[12px] md:gap-[40px] grid-cols-1 lg:grid-cols-[1fr_200px] xl:grid-cols-[1fr_434px]">
+            <main className="space-y-[8px] sm:space-y-[12px] md:space-y-[30px]">
+
+              <div className="flex flex-wrap items-center gap-0.5 sm:gap-1 md:gap-2 mb-0.5 sm:mb-1 md:mb-2">
+                <Dropdown
+                  value={currencyCode}
+                  onChange={setCurrencyCode}
+                  options={[
+                    { value: 'USD', label: 'USD' },
+                    { value: 'EUR', label: 'EUR' },
+                    { value: 'TRY', label: 'TRY' },
+                  ]}
+                  buttonClassName="bg-[#F8F8F8]"
+                />
+                <Dropdown
+                  value={locale}
+                  onChange={setLocale}
+                  options={[
+                    { value: 'en-US', label: 'en-US' },
+                    { value: 'en-GB', label: 'en-GB' },
+                    { value: 'tr-TR', label: 'tr-TR' },
+                  ]}
+                  buttonClassName="bg-[#F8F8F8]"
+                />
+                <div className="ml-auto" />
+              </div>
+
+              <StatCards totals={totals} loading={loading} currencyCode={currencyCode} locale={locale} />
+
+              <WorkingCapitalChart data={chartData} loading={loading} currencyCode={currencyCode} locale={locale} period={period} onChangePeriod={setPeriod} />
+
+              <RecentTransactions transactions={transactions} loading={loading} currencyCode={currencyCode} locale={locale} />
+            </main>
+
+            <section className="space-y-2 sm:space-y-3 md:space-y-4">
+              <WalletPanel cards={walletCards} loading={loading} />
+              <ScheduledTransfers transfers={scheduledTransfers} loading={loading} currencyCode={currencyCode} locale={locale} />
+            </section>
           </div>
         </div>
       </div>

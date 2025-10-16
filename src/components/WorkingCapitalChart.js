@@ -23,40 +23,36 @@ export default function WorkingCapitalChart({ data, loading, currencyCode, local
   const dailyUpper = Math.max(100, Math.ceil(dailyMax * 1.2));
   const dailyTicks = [0, 0.25, 0.5, 0.75, 1].map((r) => Math.round(dailyUpper * r));
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-        <h2 className="text-lg font-semibold text-gray-900">Working Capital</h2>
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-          <div className="flex items-center gap-4 text-sm text-gray-600">
-            <span className="flex items-center gap-2">
-              <span className="inline-block h-3 w-3 rounded-full" style={{ backgroundColor: '#29A073' }} />
-              Income
-            </span>
-            <span className="flex items-center gap-2">
-              <span className="inline-block h-3 w-3 rounded-full" style={{ backgroundColor: '#C8EE44' }} />
-              Expenses
-            </span>
+    <div className="bg-white rounded-lg sm:rounded-xl md:rounded-xl pl-[8px] sm:pl-[12px] md:pl-[25px] pt-[8px] sm:pt-[12px] md:pt-[20px] pb-[15px] sm:pb-[20px] md:pb-[50px] pr-[8px] sm:pr-[12px] md:pr-[20px] border w-full max-w-[716px] h-[120px] sm:h-[150px] md:h-[291px]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-0">
+        <div className="flex items-center gap-0.5 sm:gap-1 md:gap-2">
+          <div className="font-semibold text-[10px] sm:text-[12px] md:text-[18px] text-gray-900">Working Capital</div>
+        </div>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-4 md:gap-16">
+          <div className="flex items-center gap-1 sm:gap-2 md:gap-4 text-[8px] sm:text-[9px] md:text-xs text-gray-600">
+            <span className="flex items-center gap-0.5 sm:gap-1 md:gap-2"><span className="inline-block h-1.5 w-1.5 sm:h-2 sm:w-2 md:h-2.5 md:w-2.5 rounded-full" style={{ backgroundColor: '#29A073' }} />Income</span>
+            <span className="flex items-center gap-0.5 sm:gap-1 md:gap-2"><span className="inline-block h-1.5 w-1.5 sm:h-2 sm:w-2 md:h-2.5 md:w-2.5 rounded-full" style={{ backgroundColor: '#C8EE44' }} />Expenses</span>
           </div>
           <Dropdown
-            value={period}
-            onChange={(v)=> onChangePeriod && onChangePeriod(v)}
-            options={[
-              { value: 'daily', label: 'Today' },
-              { value: '7d', label: 'Last 7 days' },
-              { value: '30d', label: 'Last 6 months' },
-            ]}
-            align="right"
-            labelForValue={(v)=> (v==='30d' ? 'Last 6 months' : v==='daily' ? 'Today' : 'Last 7 days')}
+          value={period}
+          onChange={(v)=> onChangePeriod && onChangePeriod(v)}
+          options={[
+            { value: 'daily', label: 'Today' },
+            { value: '7d', label: 'Last 7 days' },
+            { value: '30d', label: 'Last 6 months' },
+          ]}
+          align="right"
+          labelForValue={(v)=> (v==='30d' ? 'Last 6 months' : v==='daily' ? 'Today' : 'Last 7 days')}
           />
         </div>
       </div>
       {loading ? (
-        <div className="h-64 rounded relative overflow-hidden">
+        <div className="h-[60px] sm:h-[80px] md:h-56 rounded relative overflow-hidden">
           <div className="absolute inset-0 bg-gray-200 rounded" />
           <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/50 to-transparent" />
         </div>
       ) : (
-        <div className="h-64">
+        <div className="h-[60px] sm:h-[80px] md:h-56">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={data || []} margin={{ top: 10, left: 0, right: 0, bottom: 0 }}>
               <XAxis
@@ -80,24 +76,7 @@ export default function WorkingCapitalChart({ data, loading, currencyCode, local
                 tickFormatter={(v)=> period === 'daily' ? `${Math.round(v/1000)}K` : (period === '30d' ? `${Math.round(v/1000)}K` : `${Math.round(v/1000)}K`)}
                 tickMargin={12}
               />
-              <Tooltip 
-                formatter={(v) => currencyFormat(v, currencyCode, locale)} 
-                cursor={{ fill: 'rgba(229,231,235,0.35)' }}
-                contentStyle={{
-                  fontSize: '12px',
-                  padding: '8px 12px',
-                  borderRadius: '8px',
-                  border: '1px solid #e5e7eb'
-                }}
-                labelStyle={{
-                  fontSize: '11px',
-                  fontWeight: '500'
-                }}
-                itemStyle={{
-                  fontSize: '11px',
-                  margin: '4px 0'
-                }}
-              />
+              <Tooltip formatter={(v) => currencyFormat(v, currencyCode, locale)} cursor={{ fill: 'rgba(229,231,235,0.35)' }} />
               <Line type="monotone" dataKey="income" stroke="#29A073" strokeWidth={3} dot={false} strokeLinecap="round" strokeLinejoin="round" />
               <Line type="monotone" dataKey="expense" stroke="#C8EE44" strokeWidth={3} dot={false} strokeLinecap="round" strokeLinejoin="round" />
             </LineChart>

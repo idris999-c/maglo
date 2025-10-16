@@ -6,34 +6,34 @@ function TransactionRow({ name, type, amount, date, currencyCode, locale, busine
   const iconSrc = image || '/icons/recent/Group 41.svg';
 
   return (
-    <div className="py-4 grid grid-cols-1 sm:grid-cols-5 items-center text-sm gap-4">
+    <div className="py-0.5 sm:py-1 md:py-2 grid grid-cols-1 sm:grid-cols-5 items-center text-[8px] sm:text-[9px] md:text-sm gap-1 sm:gap-2 md:gap-0">
       <div className="col-span-1 sm:col-span-2">
-        <div className="flex items-center gap-3">
-          <img src={iconSrc} alt="" className="h-10 w-10 rounded-lg" />
+        <div className="flex items-center gap-0.5 sm:gap-1 md:gap-2">
+          <img src={iconSrc} alt="" className="h-4 w-4 sm:h-5 sm:w-5 md:h-8 md:w-8 rounded-md sm:rounded-lg" />
           <div className="min-w-0 flex-1">
-            <div className="text-gray-900 font-medium truncate">{name}</div>
-            {business && <div className="text-sm text-gray-500 truncate">{business}</div>}
+            <div className="text-gray-900 font-medium text-[7px] sm:text-[8px] md:text-[14px] truncate">{name}</div>
+            {business && <div className="text-[6px] sm:text-[7px] md:text-[12px] text-gray-500 truncate">{business}</div>}
           </div>
         </div>
       </div>
-      <div className="text-gray-500 text-center">{type}</div>
-      <div className="text-right font-semibold text-gray-900">{currencyFormat(amount, currencyCode, locale)}</div>
-      <div className="text-right text-gray-500 whitespace-nowrap">{dateStr(date, 'en-GB')}</div>
+      <div className="text-gray-500 text-center sm:text-center text-[7px] sm:text-[8px] md:text-[14px]">{type}</div>
+      <div className="text-right sm:text-right font-semibold text-gray-900 text-[7px] sm:text-[8px] md:text-[14px]">{currencyFormat(amount, currencyCode, locale)}</div>
+      <div className="text-right text-gray-500 whitespace-nowrap text-[7px] sm:text-[8px] md:text-[14px]">{dateStr(date, 'en-GB')}</div>
     </div>
   );
 }
 
 export default function RecentTransactions({ transactions, loading, currencyCode, locale }) {
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-medium text-gray-900">Recent Transactions</h3>
-        <button className="text-sm font-bold text-[#29A073] hover:text-[#1f7a5a]">View All <span aria-hidden className="inline-block w-4 h-4">›</span></button>
+    <div className="bg-white rounded-lg sm:rounded-xl md:rounded-2xl pl-[8px] sm:pl-[12px] md:pl-[25px] pr-[8px] sm:pr-[12px] md:pr-[19px] py-2 sm:py-3 md:py-4 border w-full max-w-[717px]">
+      <div className="flex items-center justify-between mb-0.5 sm:mb-1 md:mb-2">
+        <h3 className="font-medium text-gray-900 text-[10px] sm:text-[12px] md:text-[18px]">Recent Transaction</h3>
+        <button className="text-[8px] sm:text-[9px] md:text-[14px] font-bold text-[#29A073]">View All <span aria-hidden className="inline-block w-[8px] h-[8px] sm:w-[10px] sm:h-[10px] md:w-[18px] md:h-[18px]">›</span></button>
       </div>
       {loading ? (
-        <div className="space-y-3">
+        <div className="space-y-0.5 sm:space-y-1 md:space-y-2">
           {[...Array(3)].map((_,i)=> (
-            <div key={i} className="h-12 rounded relative overflow-hidden">
+            <div key={i} className="h-6 sm:h-8 md:h-10 rounded relative overflow-hidden">
               <div className="absolute inset-0 bg-gray-200 rounded" />
               <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/50 to-transparent" />
             </div>
@@ -41,13 +41,13 @@ export default function RecentTransactions({ transactions, loading, currencyCode
         </div>
       ) : (
         <div>
-          <div className="hidden sm:grid grid-cols-5 text-xs uppercase tracking-wide text-gray-500 font-semibold py-3 border-b border-gray-200">
-            <div className="col-span-2">Name/Business</div>
+          <div className="hidden sm:grid grid-cols-5 text-[8px] sm:text-[9px] md:text-[12px] uppercase tracking-wide text-gray-500 font-semibold py-1 sm:py-2 md:py-3">
+            <div className="col-span-2 pl-1">Name/Business</div>
             <div className="text-center">Type</div>
             <div className="text-right">Amount</div>
             <div className="text-right">Date</div>
           </div>
-          <div className="divide-y divide-gray-200">
+          <div className="divide-y">
             {transactions.map(t => (
               <TransactionRow
                 key={t.id}
