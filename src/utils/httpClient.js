@@ -49,7 +49,10 @@ http.interceptors.response.use(
     const message = data?.message || error?.message || 'An unexpected error occurred';
 
     // 401 error and not retried before, try refresh token
-    if (status === 401 && !originalRequest._retry) {
+    // But skip refresh token logic for login/register endpoints
+    if (status === 401 && !originalRequest._retry && 
+        !originalRequest.url?.includes('/users/login') && 
+        !originalRequest.url?.includes('/users/register')) {
       originalRequest._retry = true;
       
       try {
